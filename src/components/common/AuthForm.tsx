@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React from "react";
+import React, { useState } from "react";
 
 type Field = {
   id: string;
@@ -27,6 +27,7 @@ type AuthFormProps = {
   buttonText: string;
   bottomText?: React.ReactNode;
   onSubmit: (values: Record<string, string>) => void;
+  validate?: (values: Record<string, string>) => Record<string, string> | null;
 };
 
 export function AuthForm({
@@ -37,19 +38,46 @@ export function AuthForm({
   buttonText,
   bottomText,
   onSubmit,
+  validate,
 }: AuthFormProps) {
-  const [form, setForm] = React.useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.id]: e.target.value,
-    }));
+    const { id, value } = e.target;
+    setValues((prev) => ({ ...prev, [id]: value }));
+
+    // Clear error when field is edited
+    if (errors[id]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[id];
+        return newErrors;
+      });
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+
+    // Validate if validate function is provided
+    if (validate) {
+      const validationErrors = validate(values);
+      if (validationErrors) {
+        setErrors(validationErrors);
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      console.error("Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -83,13 +111,21 @@ export function AuthForm({
                     type={field.type}
                     placeholder={field.placeholder}
                     autoComplete={field.autoComplete}
-                    value={form[field.id] || ""}
+                    value={values[field.id] || ""}
                     onChange={handleChange}
+                    className={`${
+                      errors[field.id] ? "border-red-500" : ""
+                    }`}
                   />
+                  {errors[field.id] && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors[field.id]}
+                    </p>
+                  )}
                 </div>
               ))}
-              <Button type="submit" className="w-full">
-                {buttonText}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Processing..." : buttonText}
               </Button>
             </div>
             {bottomText && (
