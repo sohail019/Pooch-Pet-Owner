@@ -5,7 +5,6 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { RootState } from "@/redux/store";
 import { getPackageById } from "@/controllers/packagesController";
 import { fetchPets } from "@/controllers/pet/petController";
@@ -125,15 +124,23 @@ const PackageDetails: React.FC = () => {
   // Loading skeleton
   if (loading.package) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-6 h-6 bg-gray-200 rounded animate-pulse" />
-          <div className="w-32 h-6 bg-gray-200 rounded animate-pulse" />
-        </div>
-        <div className="space-y-4">
-          <div className="w-full h-64 bg-gray-200 rounded-lg animate-pulse" />
-          <div className="w-full h-32 bg-gray-200 rounded-lg animate-pulse" />
-          <div className="w-full h-48 bg-gray-200 rounded-lg animate-pulse" />
+      <div className="min-h-screen p-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header skeleton */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 rounded-full animate-pulse" />
+            <div className="w-32 h-6 rounded animate-pulse" />
+          </div>
+
+          {/* Content skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="w-full h-80 rounded-lg animate-pulse" />
+            <div className="space-y-4">
+              <div className="w-3/4 h-8 rounded animate-pulse" />
+              <div className="w-1/2 h-6 rounded animate-pulse" />
+              <div className="w-full h-20 rounded animate-pulse" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -205,33 +212,45 @@ const PackageDetails: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-2xl">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="p-1"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h1 className="text-xl font-bold">Package Details</h1>
+      <div className="border-b sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-3">
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => navigate(-1)}
+              variant="ghost"
+              size="sm"
+              className="p-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-lg font-semibold text-white">
+                {packageData.name}
+              </h1>
+              <p className="text-sm text-gray-400">
+                {packageData.createdByType} • {packageData.duration} days
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Package Info Card */}
-        <PackageInfoCard 
-          package={packageData}
-        />
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Package Info Card */}
+          <PackageInfoCard 
+            package={packageData}
+          />
 
-        {/* Package Features */}
-        <PackageFeatures 
-          features={packageData.features}
-          duration={packageData.duration}
-        />
-
-        <Separator />
+          {/* Package Features */}
+          <PackageFeatures 
+            features={packageData.features || []}
+            duration={packageData.duration || 0}
+          />
+        </div>
 
         {/* Payment Section */}
         <PackagePaymentSection

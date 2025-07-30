@@ -189,42 +189,63 @@ const VendorInfo: React.FC<VendorInfoProps> = ({ vendor }) => {
         </div>
 
         {/* Vendor Status & Capabilities */}
-        <div className="pt-4 border-t">
-          <div className="flex flex-wrap gap-2">
-            {vendor.isActive && (
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                Active Vendor
+        {/* Vendor Status & Capabilities */}
+        <div className="pt-6 border-t border-dashed border-gray-200">
+          <div className="flex flex-wrap gap-3">
+            {vendor.isActive ? (
+              <Badge variant="secondary" className="bg-gradient-to-r from-green-200 to-green-400 text-green-900 font-bold px-3 py-1 flex items-center gap-1 shadow-lg border border-green-300">
+          <CheckCircle className="w-4 h-4 mr-1 animate-pulse" />
+          Active Vendor
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="bg-gradient-to-r from-gray-200 to-gray-400 text-gray-700 font-bold px-3 py-1 flex items-center gap-1 border border-gray-300">
+          Inactive
               </Badge>
             )}
-            
-            {vendor.kycStatus === "verified" && (
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                <Shield className="w-3 h-3 mr-1" />
-                KYC Verified
+
+            {vendor.kycStatus === "verified" ? (
+              <Badge variant="secondary" className="bg-gradient-to-r from-blue-200 to-indigo-300 text-blue-900 font-bold px-3 py-1 flex items-center gap-1 shadow-lg border border-blue-300">
+          <Shield className="w-4 h-4 mr-1 animate-spin" />
+          KYC Verified
               </Badge>
+            ) : (
+          <>
+            <Badge variant="secondary" className="bg-gradient-to-r from-yellow-200 to-orange-200 text-yellow-900 font-bold px-3 py-1 flex items-center gap-1 border border-yellow-300">
+              <Shield className="w-4 h-4 mr-1" />
+              KYC Pending
+            </Badge>
+          </>
             )}
-            
-            {vendor.canManageInventory && (
-              <Badge variant="outline" className="text-xs">
-                Inventory Management
-              </Badge>
-            )}
-            
-            {vendor.canManagePackages && (
-              <Badge variant="outline" className="text-xs">
-                Package Management
-              </Badge>
-            )}
+
+            <Badge
+              variant={vendor.canManageInventory ? "outline" : "secondary"}
+              className={`text-xs px-3 py-1 flex items-center gap-1 border ${vendor.canManageInventory ? "border-indigo-400 text-indigo-700 bg-indigo-50" : "bg-gray-100 text-gray-700 border-gray-300"}`}
+            >
+              <span className="w-2 h-2 bg-indigo-400 rounded-full mr-1"></span>
+              Inventory Management
+            </Badge>
+
+            <Badge
+              variant={vendor.canManagePackages ? "outline" : "secondary"}
+              className={`text-xs px-3 py-1 flex items-center gap-1 border ${vendor.canManagePackages ? "border-pink-400 text-pink-700 bg-pink-50" : "bg-gray-100 text-gray-700 border-gray-300"}`}
+            >
+              <span className="w-2 h-2 bg-pink-400 rounded-full mr-1"></span>
+              Package Management
+            </Badge>
           </div>
         </div>
 
         {/* Member Since */}
-        <div className="pt-4 border-t">
-          <p className="text-xs text-gray-500">
-            Member since {new Date(vendor.createdAt).toLocaleDateString('en-IN', {
-              month: 'long',
-              year: 'numeric'
-            })}
+        <div className="pt-6 border-t border-dashed border-gray-200 flex items-center gap-2">
+          <span className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full animate-pulse"></span>
+          <p className="text-xs text-gray-500 font-semibold italic">
+            Member since{" "}
+            <span className="text-indigo-700 font-bold">
+              {new Date(vendor.createdAt).toLocaleDateString("en-IN", {
+          month: "long",
+          year: "numeric",
+              })}
+            </span>
           </p>
         </div>
       </CardContent>
