@@ -52,57 +52,57 @@ const PackagesList: React.FC<PackagesListProps> = ({ packages }) => {
         }
       >
         {packages.map((pkg) => (
-          <Card 
-            key={pkg.id} 
-            className="min-w-[280px] max-w-sm flex-shrink-0 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105 border-0 shadow-md bg-gradient-to-br from-white to-gray-50"
-            onClick={() => handlePackageClick(pkg.id)}
-          >
-            <CardContent className="p-6">
-              {/* Header Section */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="font-bold text-xl text-gray-900 mb-2">{pkg.name}</h3>
-                  {pkg.isPopular && (
-                    <Badge className="bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 border-orange-200 font-medium px-3 py-1">
-                      <Star className="w-3 h-3 mr-1 fill-current" />
-                      Popular
-                    </Badge>
-                  )}
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">
+            <Card
+              key={pkg.id}
+              className="min-w-[260px] max-w-sm flex-shrink-0 cursor-pointer border border-gray-300 rounded-xl shadow hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-50 to-gray-100"
+              onClick={() => handlePackageClick(pkg.id)}
+            >
+              <CardContent className="p-5">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-lg text-gray-900">{pkg.name}</h3>
+                  <div className="text-base font-semibold text-blue-600">
                     ₹{parseFloat(pkg.price).toFixed(2)}
                   </div>
                 </div>
-              </div>
-
-              {/* Description */}
-              <div className="mb-4">
-                <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                  {pkg.description}
-                </p>
-              </div>
-
-              {/* Duration */}
-              {pkg.duration && (
-                <div className="flex items-center gap-2 mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-                  <Clock className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-700">
-                    Duration: {pkg.duration} days
+                {/* Popular Badge */}
+                {pkg.isPopular && (
+                  <Badge className="bg-yellow-100 text-yellow-700 border-none font-medium px-2 py-0.5 mb-2">
+                    <Star className="w-3 h-3 mr-1" />
+                    Popular
+                  </Badge>
+                )}
+                {/* Description */}
+                <p className="text-gray-500 text-sm mb-3 line-clamp-2">{pkg.description}</p>
+                {/* Duration */}
+                {pkg.duration && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <Clock className="w-4 h-4 text-blue-500" />
+                    <span className="text-xs text-blue-700">
+                      {pkg.duration} days
+                    </span>
+                  </div>
+                )}
+                {/* Features */}
+                {pkg.features && pkg.features.length > 0 && (
+                  <ul className="mb-3 space-y-1">
+                    {pkg.features.slice(0, 3).map((feature, idx) => (
+                      <li key={idx} className="text-xs text-gray-400 before:content-['•'] before:mr-1">
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {/* Action */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                  <span className="text-xs text-gray-400">View Details</span>
+                  <span className="flex items-center gap-1 text-blue-500 font-medium text-xs">
+                    Learn More
+                    <ArrowRight className="w-4 h-4" />
                   </span>
                 </div>
-              )}
-
-              {/* Action Button */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <span className="text-sm text-gray-500 font-medium">View Details</span>
-                <div className="flex items-center gap-1 text-blue-600 font-semibold">
-                  <span className="text-sm">Learn More</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
         ))}
       </div>
     </div>

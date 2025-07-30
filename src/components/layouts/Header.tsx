@@ -25,66 +25,57 @@ const Header: React.FC = () => {
   return (
     <header className="w-full bg-primary text-primary-foreground flex items-center justify-between py-4 px-4 shadow relative">
       <a
-        href="/"
-        className="flex items-center gap-2 text-lg font-semibold hover:underline focus:outline-none"
-        aria-label="Home"
+      href="/"
+      className="flex items-center gap-2 text-lg font-semibold hover:underline focus:outline-none"
+      aria-label="Home"
       >
-        <span className="bg-background text-primary flex items-center justify-center rounded-md p-1">
-          <DogIcon className="size-5" />
-        </span>
-        Pooch Pet Owner
+      <span className="bg-background text-primary flex items-center justify-center rounded-md p-1">
+        <DogIcon className="size-5" />
+      </span>
+      Pooch Pet Owner
       </a>
       {/* Desktop Menu */}
       <nav className="hidden md:flex gap-6 items-center ">
-        <button onClick={() => handleNav("/add-pet")} className="hover:underline">
-          Add Pet
-        </button>
-        <button onClick={() => handleNav("/add-medical")} className="hover:underline">
-          Add Medical Record
-        </button>
-        <button onClick={() => handleNav("/add-vaccination")} className="hover:underline">
-          Add Vaccination
-        </button>
-        <button onClick={handleLogout} className="hover:underline text-red-200">
-          Logout
-        </button>
+      <button onClick={() => handleNav("/my-packages")} className="hover:underline">
+        My Packages
+      </button>
+      <button onClick={() => handleNav("/add-pet")} className="hover:underline">
+        Add Pet
+      </button>
+      <button onClick={handleLogout} className="hover:underline text-red-200">
+        Logout
+      </button>
       </nav>
       {/* Mobile Hamburger */}
       <button
-        className="md:hidden p-2"
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Open menu"
+      className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+      onClick={() => setOpen((v) => !v)}
+      aria-label="Open menu"
       >
-        {open ? <XIcon className="size-6" /> : <MenuIcon className="size-6" />}
+      {open ? <XIcon className="size-6" /> : <MenuIcon className="size-6" />}
       </button>
       {/* Mobile Menu */}
       {open && (
-        <div className="absolute top-full right-2 mt-2 w-48 bg-white text-primary rounded shadow-lg flex flex-col z-50 md:hidden">
-          <button
-            onClick={() => handleNav("/add-pet")}
-            className="px-4 py-3 text-left hover:bg-muted text-black"
-          >
-            Add Pet
-          </button>
-          <button
-            onClick={() => handleNav("/add-medical")}
-            className="px-4 py-3 text-left hover:bg-muted text-black"
-          >
-            Add Medical Record
-          </button>
-          <button
-            onClick={() => handleNav("/add-vaccination")}
-            className="px-4 py-3 text-left hover:bg-muted text-black"
-          >
-            Add Vaccination
-          </button>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-3 text-left text-red-600 hover:bg-muted"
-          >
-            Logout
-          </button>
-        </div>
+      <div className="absolute top-full right-4 mt-3 w-56 bg-white  rounded-xl shadow-2xl flex flex-col z-50 md:hidden border border-gray-200 animate-fade-in">
+        <button
+        onClick={() => handleNav("/my-packages")}
+        className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
+        >
+        My Packages
+        </button>
+        <button
+        onClick={() => handleNav("/add-pet")}
+        className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
+        >
+        Add Pet
+        </button>
+        <button
+        onClick={handleLogout}
+        className="px-5 py-4 text-left text-red-600 hover:bg-red-50 transition-colors font-medium"
+        >
+        Logout
+        </button>
+      </div>
       )}
     </header>
   );

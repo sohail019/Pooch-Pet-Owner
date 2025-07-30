@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import UserDetailsCard from "@/components/user/UserDetailsCard";
 import PetSlider from "@/components/pets/PetSlider";
 import PackagesList from "@/components/packages/PackagesList";
@@ -164,7 +165,15 @@ const Home: React.FC = () => {
       </div>
 
       {/* Packages Section */}
-      <h2 className="text-xl font-bold mb-4">Your Packages</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold">Your Packages</h2>
+        <Link 
+          to="/my-packages" 
+          className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+        >
+          View All →
+        </Link>
+      </div>
       {loading.packages ? (
         <div className="flex gap-4">
           {[1, 2].map((i) => (

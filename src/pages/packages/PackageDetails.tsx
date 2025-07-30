@@ -305,7 +305,7 @@ const PackageDetails: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="border-b sticky top-0 z-10">
+      <div className="border-b border-gray-700 sticky top-0 z-10 bg-gray-900/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center gap-4">
             <Button
@@ -320,7 +320,7 @@ const PackageDetails: React.FC = () => {
               <h1 className="text-lg font-semibold text-white">
                 {packageData.name}
               </h1>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-200">
                 {packageData.createdByType} • {packageData.duration} days
               </p>
             </div>
@@ -332,12 +332,10 @@ const PackageDetails: React.FC = () => {
       <div className="max-w-4xl mx-auto p-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Package Info Card */}
-          <PackageInfoCard 
-            package={packageData}
-          />
+          <PackageInfoCard package={packageData} />
 
           {/* Package Features */}
-          <PackageFeatures 
+          <PackageFeatures
             features={packageData.features || []}
             duration={packageData.duration || 0}
           />
@@ -352,9 +350,11 @@ const PackageDetails: React.FC = () => {
               </div>
               Select Pet & Purchase Package
             </CardTitle>
-            <p className="text-gray-400 text-sm">Choose which pet this package is for</p>
+            <p className="text-gray-400 text-sm">
+              Choose which pet this package is for
+            </p>
           </CardHeader>
-          
+
           <CardContent>
             {loading.pets ? (
               <div className="flex items-center gap-3 p-4 border rounded-lg">
@@ -376,9 +376,13 @@ const PackageDetails: React.FC = () => {
                 <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-orange-100 to-red-100 rounded-full flex items-center justify-center">
                   <span className="text-2xl">🐕</span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Pets Found</h3>
-                <p className="text-gray-600 mb-4">You need to add a pet to purchase this package</p>
-                <Button 
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Pets Found
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  You need to add a pet to purchase this package
+                </p>
+                <Button
                   onClick={() => navigate("/add-pet")}
                   className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
                 >
@@ -398,22 +402,32 @@ const PackageDetails: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <Avatar className="w-8 h-8">
                           <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
-                            {pets.find(p => p.id === selectedPetId)?.name.charAt(0)}
+                            {pets
+                              .find((p) => p.id === selectedPetId)
+                              ?.name.charAt(0)}
                           </div>
                         </Avatar>
                         <div className="text-left">
                           <div className="font-medium text-white">
-                            {pets.find(p => p.id === selectedPetId)?.name}
+                            {pets.find((p) => p.id === selectedPetId)?.name}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {pets.find(p => p.id === selectedPetId)?.species} • {pets.find(p => p.id === selectedPetId)?.age} years
+                            {pets.find((p) => p.id === selectedPetId)?.species}{" "}
+                            • {pets.find((p) => p.id === selectedPetId)?.age}{" "}
+                            years
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <span className="text-gray-500">Select a pet for this package</span>
+                      <span className="text-gray-500">
+                        Select a pet for this package
+                      </span>
                     )}
-                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${petDropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown
+                      className={`w-4 h-4 text-gray-400 transition-transform ${
+                        petDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
                   </button>
 
                   {petDropdownOpen && (
@@ -433,13 +447,17 @@ const PackageDetails: React.FC = () => {
                             </div>
                           </Avatar>
                           <div>
-                            <div className="font-medium text-gray-900">{pet.name}</div>
+                            <div className="font-medium text-gray-900">
+                              {pet.name}
+                            </div>
                             <div className="text-sm text-gray-500">
                               {pet.species} • {pet.age} years
                             </div>
                           </div>
                           {selectedPetId === pet.id && (
-                            <Badge className="ml-auto bg-green-100 text-green-800">Selected</Badge>
+                            <Badge className="ml-auto bg-green-100 text-green-800">
+                              Selected
+                            </Badge>
                           )}
                         </button>
                       ))}
@@ -448,7 +466,7 @@ const PackageDetails: React.FC = () => {
                 </div>
 
                 {/* Buy Now Button */}
-                <Button 
+                <Button
                   onClick={handleBuyNow}
                   disabled={!selectedPetId || paymentState === "processing"}
                   className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50"
@@ -459,7 +477,10 @@ const PackageDetails: React.FC = () => {
                       Processing Payment...
                     </>
                   ) : (
-                    <>Buy Now - ₹{parseFloat(packageData?.price || "0").toFixed(2)}</>
+                    <>
+                      Buy Now - ₹
+                      {parseFloat(packageData?.price || "0").toFixed(2)}
+                    </>
                   )}
                 </Button>
 
@@ -485,14 +506,14 @@ const PackageDetails: React.FC = () => {
           item={{
             id: packageData?.id || "",
             name: packageData?.name || "",
-            price: packageData?.price || "0"
+            price: packageData?.price || "0",
           }}
           totalAmount={parseFloat(packageData?.price || "0")}
           paymentId={paymentId}
           onClose={handleDialogClose}
           onPaymentSuccess={handlePaymentSuccess}
           errorMessage={paymentError}
-          petName={pets.find(p => p.id === selectedPetId)?.name}
+          petName={pets.find((p) => p.id === selectedPetId)?.name}
         />
       </div>
     </div>

@@ -4,12 +4,12 @@ import { ArrowLeft, ShoppingCart, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "react-toastify";
-import { getInventoryById, InventoryItem, initiateInventoryPayment, completeInventoryPayment } from "@/controllers/inventoryController";
+import { getInventoryById, InventoryItem } from "@/controllers/inventoryController";
 import ProductImages from "@/components/inventory/ProductImages";
 import ProductInfo from "@/components/inventory/ProductInfo";
 import QuantitySelector from "@/components/inventory/QuantitySelector";
 import VendorInfo from "@/components/inventory/VendorInfo";
-import PaymentDialog from "@/components/common/PaymentDialog";
+import PaymentSection from "@/components/inventory/PaymentSection";
 
 const InventoryDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,9 +19,7 @@ const InventoryDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const [paymentState, setPaymentState] = useState<"idle" | "processing" | "success" | "error">("idle");
-  const [paymentId, setPaymentId] = useState<string>("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState("");
 
   // Fetch product details
@@ -128,7 +126,7 @@ if (loading) {
   return (
     <div className="min-h-screen ">
       {/* Header */}
-      <div className="border-b sticky top-0 z-10">
+      <div className="border-b border-gray-700 sticky top-0 z-10 bg-gray-900/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center gap-4">
             <Button
@@ -155,14 +153,11 @@ if (loading) {
       <div className="max-w-4xl mx-auto p-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Product Images */}
-          <ProductImages 
-            images={product.images} 
-            productName={product.name} 
-          />
+          <ProductImages images={product.images} productName={product.name} />
 
           {/* Product Info & Quick Actions */}
           <div className="space-y-4">
-            <ProductInfo 
+            <ProductInfo
               product={product}
               quantity={quantity}
               totalPrice={totalPrice}
@@ -194,31 +189,49 @@ if (loading) {
                     )}
                   </div>
                 </div>
-                
+
                 <Button
                   className="w-full h-12 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold shadow-lg hover:scale-[1.03] transition-transform duration-150"
                   size="lg"
-                  disabled={!product.isActive || product.quantity === 0 || paymentLoading}
+                  disabled={
+                    !product.isActive ||
+                    product.quantity === 0 ||
+                    paymentLoading
+                  }
                   onClick={() => setPaymentLoading(true)}
                 >
                   <span className="relative flex items-center">
                     <ShoppingCart className="w-5 h-5 mr-2 animate-bounce" />
                     {paymentLoading && (
-                      <svg className="ml-2 w-4 h-4 animate-spin text-white" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      <svg
+                        className="ml-2 w-4 h-4 animate-spin text-white"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        />
                       </svg>
                     )}
                   </span>
                   <span>
-                    {!product.isActive 
-                      ? "Product Unavailable" 
-                      : product.quantity === 0 
-                      ? "Out of Stock" 
-                      : paymentLoading 
-                      ? "Processing..." 
-                      : "Buy Now"
-                    }
+                    {!product.isActive
+                      ? "Product Unavailable"
+                      : product.quantity === 0
+                      ? "Out of Stock"
+                      : paymentLoading
+                      ? "Processing..."
+                      : "Buy Now"}
                   </span>
                 </Button>
 
@@ -239,9 +252,7 @@ if (loading) {
         </div>
 
         {/* Vendor Information */}
-        {product.vendor && (
-          <VendorInfo vendor={product.vendor} />
-        )}
+        {product.vendor && <VendorInfo vendor={product.vendor} />}
 
         {/* Payment Section */}
         {paymentLoading && (

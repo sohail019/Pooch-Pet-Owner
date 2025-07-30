@@ -11,6 +11,7 @@ import PetDetails from '@/pages/home/PetDetails';
 import AddPetMedical from '@/pages/home/AddPetMedical';
 import AddPetVaccination from '@/pages/home/AddPetVaccination';
 import PackageDetails from '@/pages/packages/PackageDetails';
+import MyPackages from '@/pages/packages/MyPackages';
 import InventoryDetails from '@/pages/inventory/InventoryDetails';
 
 const AppRouter = () => (
@@ -37,6 +38,9 @@ const AppRouter = () => (
 
         {/* Package Details & Payment */}
         <Route path="/packages/:id" element={<PackageDetails />} />
+        
+        {/* My Packages */}
+        <Route path="/my-packages" element={<MyPackages />} />
 
         {/* Inventory Details & Payment */}
         <Route path="/inventory/:id" element={<InventoryDetails />} />
