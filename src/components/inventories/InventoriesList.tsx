@@ -70,7 +70,7 @@ const InventoriesList: React.FC<InventoriesListProps> = ({ inventories }) => {
   
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold mb-4">Available Products</h2>
+      <h2 className="text-xl font-bold mb-4">Products</h2>
       <div className="flex gap-4 overflow-x-auto pb-2">
         {inventories.map((item) => (
           <Card 

@@ -54,13 +54,13 @@ const PackagesList: React.FC<PackagesListProps> = ({ packages }) => {
         {packages.map((pkg) => (
             <Card
               key={pkg.id}
-              className="min-w-[260px] max-w-sm flex-shrink-0 cursor-pointer border border-gray-300 rounded-xl shadow hover:shadow-md transition-all duration-200 bg-gradient-to-br from-gray-50 to-gray-100"
+              className="min-w-[260px] max-w-sm flex-shrink-0 cursor-pointer border border-gray-300 rounded-xl shadow hover:shadow-md transition-all duration-200 bg-gradient-to-br"
               onClick={() => handlePackageClick(pkg.id)}
             >
               <CardContent className="p-5">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-lg text-gray-900">{pkg.name}</h3>
+                  <h3 className="font-semibold text-lg text-white">{pkg.name}</h3>
                   <div className="text-base font-semibold text-blue-600">
                     ₹{parseFloat(pkg.price).toFixed(2)}
                   </div>
@@ -73,7 +73,7 @@ const PackagesList: React.FC<PackagesListProps> = ({ packages }) => {
                   </Badge>
                 )}
                 {/* Description */}
-                <p className="text-gray-500 text-sm mb-3 line-clamp-2">{pkg.description}</p>
+                <p className="text-gray-300 text-sm mb-3 line-clamp-2">{pkg.description}</p>
                 {/* Duration */}
                 {pkg.duration && (
                   <div className="flex items-center gap-2 mb-3">
@@ -87,7 +87,7 @@ const PackagesList: React.FC<PackagesListProps> = ({ packages }) => {
                 {pkg.features && pkg.features.length > 0 && (
                   <ul className="mb-3 space-y-1">
                     {pkg.features.slice(0, 3).map((feature, idx) => (
-                      <li key={idx} className="text-xs text-gray-400 before:content-['•'] before:mr-1">
+                      <li key={idx} className="text-xs text-gray-300 before:content-['•'] before:mr-1">
                         {feature}
                       </li>
                     ))}

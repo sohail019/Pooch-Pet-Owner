@@ -6,6 +6,9 @@ interface User {
   email?: string;
   phone?: string;
   avatarUrl?: string;
+  isVerified?: boolean;
+  kycStatus?: "pending" | "approved" | "rejected";
+  isActive?: boolean;
   // Add more user fields as needed
 }
 

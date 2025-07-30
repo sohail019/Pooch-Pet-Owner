@@ -134,6 +134,10 @@ const Home: React.FC = () => {
           name={user.name}
           email={user.email || user.phone || ""}
           avatarUrl={user.avatarUrl}
+          phone={user.phone}
+          isVerified={user.isVerified}
+          kycStatus={user.kycStatus}
+          isActive={user.isActive}
         />
       ) : null}
 
@@ -166,7 +170,7 @@ const Home: React.FC = () => {
 
       {/* Packages Section */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">Your Packages</h2>
+        <h2 className="text-xl font-bold">Packages</h2>
         <Link 
           to="/my-packages" 
           className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
