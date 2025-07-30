@@ -5,11 +5,13 @@ import Register from '@/pages/auth/Register';
 import Home from '@/pages/home/Home';
 import AddPet from '@/pages/onboarding/AddPet';
 import AddMedical from '@/pages/onboarding/AddMedical';
-import AddVaccination from '@/pages/onboarding/AddVaccination'; // Import the new component
+import AddVaccination from '@/pages/onboarding/AddVaccination';
 import MainLayout from '@/pages/MainLayout';
 import PetDetails from '@/pages/home/PetDetails';
 import AddPetMedical from '@/pages/home/AddPetMedical';
 import AddPetVaccination from '@/pages/home/AddPetVaccination';
+import PackageDetails from '@/pages/packages/PackageDetails';
+import InventoryDetails from '@/pages/inventory/InventoryDetails';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -32,6 +34,12 @@ const AppRouter = () => (
         <Route path="/pets/:id" element={<PetDetails />} />
         <Route path="/pets/:id/add-medical" element={<AddPetMedical />} />
         <Route path="/pets/:id/add-vaccination" element={<AddPetVaccination />} />
+
+        {/* Package Details & Payment */}
+        <Route path="/packages/:id" element={<PackageDetails />} />
+
+        {/* Inventory Details & Payment */}
+        <Route path="/inventory/:id" element={<InventoryDetails />} />
 
         {/* Onboarding Flow */}
         <Route path="/onboarding/add-pet" element={<AddPet onboarding />} />

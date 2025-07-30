@@ -96,3 +96,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Carousel animations */
+  .carousel-slide-enter {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  .carousel-slide-enter-active {
+    opacity: 1;
+    transform: translateX(0%);
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+  }
+
+  .carousel-slide-exit {
+    opacity: 1;
+    transform: translateX(0%);
+  }
+
+  .carousel-slide-exit-active {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+  }
+
+  /* Smooth scrolling for carousel */
+  .carousel-container {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Carousel navigation button animations */
+  .carousel-nav-button {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .carousel-nav-button:hover {
+    transform: scale(1.1);
+  }
+
+  .carousel-nav-button:active {
+    transform: scale(0.95);
+  }
+}
