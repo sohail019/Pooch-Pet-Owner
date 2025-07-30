@@ -1,19 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, User, Plus, AlertCircle, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { RootState } from "@/redux/store";
-import { getPackageById } from "@/controllers/packagesController";
+import { getPackageById, initiatePackagePayment, completePackagePayment } from "@/controllers/packagesController";
 import { fetchPets } from "@/controllers/pet/petController";
 import { Package } from "@/redux/slices/packagesSlice";
 import { Pet } from "@/redux/slices/petsSlice";
 import { handleApiError } from "@/types/errors";
 import PackageInfoCard from "@/components/packages/PackageInfoCard";
 import PackageFeatures from "@/components/packages/PackageFeatures";
-import PackagePaymentSection from "@/components/packages/PackagePaymentSection";
+import PaymentDialog from "@/components/common/PaymentDialog";
 
 const PackageDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +28,8 @@ const PackageDetails: React.FC = () => {
   const [packageData, setPackageData] = useState<Package | null>(null);
   const [pets, setPets] = useState<Pet[]>([]);
   const [selectedPetId, setSelectedPetId] = useState<string>("");
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [petDropdownOpen, setPetDropdownOpen] = useState(false);
   const [loading, setLoading] = useState({
     package: true,
     pets: true,
@@ -103,16 +107,113 @@ const PackageDetails: React.FC = () => {
 
   // Handle payment success
   const handlePaymentSuccess = () => {
-    toast.success("Payment completed successfully! 🎉");
+    // toast.success("Payment completed successfully! 🎉");
     setTimeout(() => {
       navigate("/", { replace: true });
-    }, 2000);
+    }, 3000);
   };
 
   // Handle payment error
   const handlePaymentError = (errorMessage: string) => {
     setError(prev => ({ ...prev, payment: errorMessage }));
     toast.error(errorMessage);
+  };
+
+  // Payment state
+  const [paymentState, setPaymentState] = useState<"idle" | "processing" | "success" | "error">("idle");
+  const [paymentId, setPaymentId] = useState<string>("");
+  const [paymentError, setPaymentError] = useState<string>("");
+
+  // Handle Buy Now button click
+  const handleBuyNow = async () => {
+    if (!selectedPetId) {
+      toast.error("Please select a pet for this package");
+      return;
+    }
+    
+    if (!packageData) return;
+
+    // Validate price before conversion
+    const priceValue = parseFloat(packageData.price);
+    if (isNaN(priceValue) || priceValue <= 0) {
+      toast.error("Invalid package price");
+      return;
+    }
+
+    try {
+      setPaymentDialogOpen(true);
+      setPaymentState("processing");
+      setPaymentError("");
+
+      // Prepare payment payload
+      const paymentPayload = {
+        packageId: packageData.id,
+        petId: selectedPetId,
+        amount: priceValue,
+        currency: "INR",
+        method: "credit_card" as const,
+        deliveryAddress: "123 Main Street, Mumbai, Maharashtra 400001, India"
+      };
+
+      console.log("💳 Initiating payment with payload:", paymentPayload);
+      const paymentResponse = await initiatePackagePayment(paymentPayload);
+      console.log("✅ Payment initiated:", paymentResponse);
+      
+      // Validate that we received a valid payment ID
+      if (!paymentResponse.id) {
+        throw new Error("Failed to get payment ID from response");
+      }
+
+      setPaymentId(paymentResponse.id);
+      toast.success("Payment initiated successfully!");
+
+      // Simulate payment processing delay
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Complete payment
+      const completionPayload = {
+        paymentId: paymentResponse.id,
+        status: "completed" as const,
+        gatewayPaymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        gatewaySignature: `sig_${Math.random().toString(36).substr(2, 20)}`,
+        transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        gatewayResponse: {
+          gateway: "razorpay",
+          orderId: `order_${Date.now()}`,
+          paymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          signature: `sig_${Math.random().toString(36).substr(2, 20)}`
+        }
+      };
+
+      console.log("💳 Completing payment with payload:", completionPayload);
+      const completedPayment = await completePackagePayment(paymentResponse.id, completionPayload);
+      
+      console.log("✅ Payment completed:", completedPayment);
+      toast.success("Payment completed successfully!");
+      setPaymentState("success");
+
+      // Auto-redirect after showing success
+      setTimeout(() => {
+        handlePaymentSuccess();
+      }, 3000);
+
+    } catch (err) {
+      console.error("❌ Payment failed:", err);
+      const errorMsg = err instanceof Error ? err.message : "Payment failed. Please try again.";
+      setPaymentError(errorMsg);
+      setPaymentState("error");
+      handlePaymentError(errorMsg);
+    }
+  };
+
+  // Handle dialog close
+  const handleDialogClose = () => {
+    if (paymentState !== "processing") {
+      setPaymentDialogOpen(false);
+      setPaymentState("idle");
+      setPaymentId("");
+      setPaymentError("");
+    }
   };
 
   // Initialize data
@@ -149,30 +250,25 @@ const PackageDetails: React.FC = () => {
   // Error state
   if (error.package) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="p-1"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-xl font-bold">Package Details</h1>
-        </div>
-        
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="text-red-500 text-4xl mb-4">⚠️</div>
-            <h3 className="text-lg font-semibold mb-2">Failed to Load Package</h3>
-            <p className="text-gray-600 mb-4">{error.package}</p>
-            <div className="flex gap-2 justify-center">
-              <Button onClick={fetchPackageDetails} variant="outline">
-                Try Again
+      <div className="min-h-screen p-4 flex items-center justify-center">
+        <Card className="w-full max-w-md border-0 shadow-lg">
+          <CardContent className="p-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-red-100 to-pink-100 rounded-full flex items-center justify-center">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Package Not Found
+            </h2>
+            <p className="text-gray-600 mb-4">
+              {error.package || "The package you're looking for doesn't exist or has been removed."}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <Button onClick={() => navigate("/")} variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Home
               </Button>
-              <Button onClick={() => navigate("/")} variant="default">
-                Go Home
+              <Button onClick={fetchPackageDetails}>
+                Try Again
               </Button>
             </div>
           </CardContent>
@@ -184,26 +280,21 @@ const PackageDetails: React.FC = () => {
   // No package data
   if (!packageData) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="p-1"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-xl font-bold">Package Details</h1>
-        </div>
-        
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="text-gray-400 text-4xl mb-4">📦</div>
-            <h3 className="text-lg font-semibold mb-2">Package Not Found</h3>
-            <p className="text-gray-600 mb-4">The package you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate("/")} variant="default">
-              Go Home
+      <div className="min-h-screen p-4 flex items-center justify-center">
+        <Card className="w-full max-w-md border-0 shadow-lg">
+          <CardContent className="p-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+              <span className="text-2xl">📦</span>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Package Not Found
+            </h2>
+            <p className="text-gray-600 mb-4">
+              The package you're looking for doesn't exist or has been removed.
+            </p>
+            <Button onClick={() => navigate("/")} variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
             </Button>
           </CardContent>
         </Card>
@@ -252,23 +343,156 @@ const PackageDetails: React.FC = () => {
           />
         </div>
 
-        {/* Payment Section */}
-        <PackagePaymentSection
-          package={packageData}
-          pets={pets}
-          selectedPetId={selectedPetId}
-          onPetSelect={setSelectedPetId}
+        {/* Pet Selection and Payment Section */}
+        <Card className="border-0 shadow-md">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg">
+                <User className="w-5 h-5 text-green-600" />
+              </div>
+              Select Pet & Purchase Package
+            </CardTitle>
+            <p className="text-gray-600 text-sm">Choose which pet this package is for</p>
+          </CardHeader>
+          
+          <CardContent>
+            {loading.pets ? (
+              <div className="flex items-center gap-3 p-4 border rounded-lg">
+                <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+                <div className="flex-1">
+                  <div className="w-24 h-4 bg-gray-200 rounded animate-pulse mb-1" />
+                  <div className="w-16 h-3 bg-gray-200 rounded animate-pulse" />
+                </div>
+              </div>
+            ) : error.pets ? (
+              <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+                <div className="flex items-center gap-2 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {error.pets}
+                </div>
+              </div>
+            ) : pets.length === 0 ? (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-orange-100 to-red-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">🐕</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Pets Found</h3>
+                <p className="text-gray-600 mb-4">You need to add a pet to purchase this package</p>
+                <Button 
+                  onClick={() => navigate("/add-pet")}
+                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Your First Pet
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Pet Selection Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setPetDropdownOpen(!petDropdownOpen)}
+                    className="w-full p-3 border rounded-lg flex items-center justify-between hover:border-blue-300 transition-colors"
+                  >
+                    {selectedPetId ? (
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-8 h-8">
+                          <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
+                            {pets.find(p => p.id === selectedPetId)?.name.charAt(0)}
+                          </div>
+                        </Avatar>
+                        <div className="text-left">
+                          <div className="font-medium text-gray-900">
+                            {pets.find(p => p.id === selectedPetId)?.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {pets.find(p => p.id === selectedPetId)?.species} • {pets.find(p => p.id === selectedPetId)?.age} years
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">Select a pet for this package</span>
+                    )}
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${petDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {petDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                      {pets.map((pet) => (
+                        <button
+                          key={pet.id}
+                          onClick={() => {
+                            setSelectedPetId(pet.id);
+                            setPetDropdownOpen(false);
+                          }}
+                          className="w-full p-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                        >
+                          <Avatar className="w-8 h-8">
+                            <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
+                              {pet.name.charAt(0)}
+                            </div>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium text-gray-900">{pet.name}</div>
+                            <div className="text-sm text-gray-500">
+                              {pet.species} • {pet.age} years
+                            </div>
+                          </div>
+                          {selectedPetId === pet.id && (
+                            <Badge className="ml-auto bg-green-100 text-green-800">Selected</Badge>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Buy Now Button */}
+                <Button 
+                  onClick={handleBuyNow}
+                  disabled={!selectedPetId || paymentState === "processing"}
+                  className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50"
+                >
+                  {paymentState === "processing" ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Processing Payment...
+                    </>
+                  ) : (
+                    <>Buy Now - ₹{parseFloat(packageData?.price || "0").toFixed(2)}</>
+                  )}
+                </Button>
+
+                {/* Add Pet Option */}
+                <div className="text-center pt-2 border-t">
+                  <button
+                    onClick={() => navigate("/add-pet")}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-1"
+                  >
+                    <Plus className="w-3 h-3" />
+                    Add another pet
+                  </button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Payment Dialog */}
+        <PaymentDialog
+          isOpen={paymentDialogOpen}
+          paymentState={paymentState}
+          item={{
+            id: packageData?.id || "",
+            name: packageData?.name || "",
+            price: packageData?.price || "0"
+          }}
+          totalAmount={parseFloat(packageData?.price || "0")}
+          paymentId={paymentId}
+          onClose={handleDialogClose}
           onPaymentSuccess={handlePaymentSuccess}
-          onPaymentError={handlePaymentError}
-          loading={{
-            pets: loading.pets,
-            payment: loading.payment,
-          }}
-          error={{
-            pets: error.pets,
-            payment: error.payment,
-          }}
-          onNavigateToAddPet={() => navigate("/add-pet")}
+          errorMessage={paymentError}
+          petName={pets.find(p => p.id === selectedPetId)?.name}
         />
       </div>
     </div>

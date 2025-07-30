@@ -69,7 +69,7 @@ const PackagePaymentSection: React.FC<PackagePaymentSectionProps> = ({
         amount: priceValue,
         currency: "INR",
         method: "credit_card", // Use the correct field name and value
-        gatewayOrderId: `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        deliveryAddress: "123 Main Street, Mumbai, Maharashtra 400001, India"
       };
 
       console.log("💳 Initiating payment with payload:", paymentPayload);
@@ -80,28 +80,43 @@ const PackagePaymentSection: React.FC<PackagePaymentSectionProps> = ({
       const paymentResponse = await initiatePackagePayment(paymentPayload);
       console.log("✅ Payment initiated:", paymentResponse);
 
+      // Validate that we received a valid payment ID
+      if (!paymentResponse.id) {
+        throw new Error("Failed to get payment ID from response");
+      }
+
+      // toast.success("Payment initiated successfully!");
+
       // Mock payment gateway integration
       // In real app, this would redirect to payment gateway
-      toast.info("Processing payment...", { autoClose: 2000 });
+      // toast.info("Processing payment...", { autoClose: 2000 });
 
       // Simulate payment processing delay
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Step 2: Complete payment (mock success)
       const completionPayload = {
-        paymentId: paymentResponse.paymentId,
+        paymentId: paymentResponse.id, // Include paymentId in payload
+        status: "completed" as const,
         gatewayPaymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         gatewaySignature: `sig_${Math.random().toString(36).substr(2, 20)}`,
-        status: "completed" as const,
+        transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        gatewayResponse: {
+          gateway: "razorpay",
+          orderId: `order_${Date.now()}`,
+          paymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          signature: `sig_${Math.random().toString(36).substr(2, 20)}`
+        }
       };
 
       console.log("💳 Completing payment with payload:", completionPayload);
       const completedPayment = await completePackagePayment(
-        paymentResponse.paymentId, 
+        paymentResponse.id, 
         completionPayload
       );
       
       console.log("✅ Payment completed:", completedPayment);
+      toast.success("Payment completed successfully!");
       onPaymentSuccess();
 
     } catch (err) {

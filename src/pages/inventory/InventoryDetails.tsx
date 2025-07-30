@@ -4,12 +4,12 @@ import { ArrowLeft, ShoppingCart, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "react-toastify";
-import { getInventoryById, InventoryItem } from "@/controllers/inventoryController";
+import { getInventoryById, InventoryItem, initiateInventoryPayment, completeInventoryPayment } from "@/controllers/inventoryController";
 import ProductImages from "@/components/inventory/ProductImages";
 import ProductInfo from "@/components/inventory/ProductInfo";
 import QuantitySelector from "@/components/inventory/QuantitySelector";
 import VendorInfo from "@/components/inventory/VendorInfo";
-import PaymentSection from "@/components/inventory/PaymentSection";
+import PaymentDialog from "@/components/common/PaymentDialog";
 
 const InventoryDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +19,9 @@ const InventoryDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [paymentState, setPaymentState] = useState<"idle" | "processing" | "success" | "error">("idle");
+  const [paymentId, setPaymentId] = useState<string>("");
   const [paymentError, setPaymentError] = useState("");
 
   // Fetch product details
@@ -62,7 +64,7 @@ const InventoryDetails: React.FC = () => {
 
   // Handle payment success
   const handlePaymentSuccess = useCallback(() => {
-    toast.success("Payment completed successfully!");
+    // toast.success("Payment completed successfully!");
     navigate("/", { replace: true });
   }, [navigate]);
 

@@ -60,51 +60,57 @@ export interface InventoryItem {
 }
 
 export interface InventoryPaymentPayload {
-  inventoryId: string;
+  productId: string;
   quantity: number;
   amount: number;
   currency: string;
   method: "credit_card" | "debit_card" | "upi" | "net_banking" | "wallet";
-  gatewayOrderId: string;
+  deliveryAddress?: string;
+  transactionId?: string;
+  gatewayResponse?: {
+    gateway: string;
+    paymentIntentId?: string;
+    chargeId?: string;
+    orderId?: string;
+    paymentId?: string;
+  };
 }
 
 export interface InventoryPaymentResponse {
-  paymentId: string;
-  inventoryId: string;
+  id: string;
   userId: string;
+  paymentType: "product";
+  productId: string;
   quantity: number;
   amount: number;
   currency: string;
-  method: string;
   status: "pending" | "completed" | "failed";
-  gatewayOrderId: string;
-  gatewayPaymentId: string | null;
-  gatewaySignature: string | null;
+  method: string;
+  transactionId: string;
   createdAt: string;
   updatedAt: string;
-  completedAt?: string;
-  userInventoryItem?: {
-    id: string;
-    inventoryId: string;
-    userId: string;
-    quantity: number;
-    purchaseDate: string;
-    totalAmount: number;
-    status: string;
-    createdAt: string;
-  };
 }
 
 export interface PaymentStatusPayload {
   paymentId: string;
-  gatewayPaymentId: string;
-  gatewaySignature: string;
   status: "completed" | "failed";
+  gatewayPaymentId?: string;
+  gatewaySignature?: string;
+  transactionId?: string;
+  gatewayResponse?: {
+    gateway: string;
+    orderId?: string;
+    paymentId?: string;
+    signature?: string;
+    errorCode?: string;
+    errorMessage?: string;
+  };
+  failureReason?: string;
 }
 
 export interface UserInventoryItem {
   id: string;
-  inventoryId: string;
+  productId: string;
   userId: string;
   quantity: number;
   purchaseDate: string;
@@ -183,7 +189,7 @@ export const initiateInventoryPayment = async (
     console.log("💳 Initiating inventory payment...", payload);
     const response = await axiosInstance.post("/payment/create", payload);
     console.log("✅ Inventory payment initiated successfully:", response.data);
-    toast.success("Payment initiated successfully!");
+    // Remove duplicate toast - let the component handle success messaging
     return response.data.data;
   } catch (error: unknown) {
     console.error("❌ Failed to initiate inventory payment:", error);
@@ -203,15 +209,15 @@ export const initiateInventoryPayment = async (
     }
     
     const errorMessage = handleApiError(error);
-    toast.error(errorMessage);
+    // Only throw error, let component handle error toast
     throw new Error(errorMessage);
   }
 };
 
 /**
- * Complete inventory payment
+ * Complete inventory payment using webhook
  * @param paymentId - Payment ID
- * @param payload - Payment completion payload
+ * @param payload - Payment webhook payload
  * @returns Promise<InventoryPaymentResponse>
  */
 export const completeInventoryPayment = async (
@@ -219,31 +225,42 @@ export const completeInventoryPayment = async (
   payload: PaymentStatusPayload
 ): Promise<InventoryPaymentResponse> => {
   try {
-    console.log(`💳 Completing inventory payment: ${paymentId}`, payload);
-    const response = await axiosInstance.patch(`/payment/${paymentId}/status`, payload);
-    console.log("✅ Inventory payment completed successfully:", response.data);
-    toast.success("Payment completed successfully!");
+    // Validate paymentId
+    if (!paymentId) {
+      throw new Error("Payment ID is required to complete payment");
+    }
+
+    // Ensure paymentId is in the payload
+    const completePayload = {
+      ...payload,
+      paymentId
+    };
+
+    console.log(`💳 Processing payment webhook for: ${paymentId}`, completePayload);
+    const response = await axiosInstance.post("/payment/webhook", completePayload);
+    console.log("✅ Payment webhook processed successfully:", response.data);
+    // Remove duplicate toast - let the component handle success messaging
     return response.data.data;
   } catch (error: unknown) {
-    console.error("❌ Failed to complete inventory payment:", error);
+    console.error("❌ Failed to process payment webhook:", error);
     const errorMessage = handleApiError(error);
-    toast.error(errorMessage);
+    // Only throw error, let component handle error toast
     throw new Error(errorMessage);
   }
 };
 
 /**
- * Get user's purchased inventory items
+ * Get user's purchased products
  * @returns Promise<UserInventoryItem[]>
  */
 export const getUserInventoryItems = async (): Promise<UserInventoryItem[]> => {
   try {
-    console.log("📦 Fetching user inventory items...");
-    const response = await axiosInstance.get("/payment/user/inventory");
-    console.log("✅ User inventory items fetched successfully:", response.data);
-    return response.data.data || [];
+    console.log("📦 Fetching user purchased products...");
+    const response = await axiosInstance.get("/payment/user/products");
+    console.log("✅ User products fetched successfully:", response.data);
+    return response.data.data?.userProducts || [];
   } catch (error: unknown) {
-    console.error("❌ Failed to fetch user inventory items:", error);
+    console.error("❌ Failed to fetch user products:", error);
     const errorMessage = handleApiError(error);
     toast.error(errorMessage);
     throw new Error(errorMessage);

@@ -39,42 +39,55 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         setPaymentStep("initiating");
         
         const paymentPayload: InventoryPaymentPayload = {
-          inventoryId: product.id,
+          productId: product.id,
           quantity: quantity,
           amount: totalAmount,
           currency: "INR",
           method: "credit_card",
-          gatewayOrderId: `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          deliveryAddress: "123 Main Street, Mumbai, Maharashtra 400001, India"
         };
 
         console.log("💳 Initiating payment with payload:", paymentPayload);
         const paymentResponse = await initiateInventoryPayment(paymentPayload);
         console.log("✅ Payment initiated:", paymentResponse);
         
-        setPaymentId(paymentResponse.paymentId);
+        // Validate that we received a valid payment ID
+        if (!paymentResponse.id) {
+          throw new Error("Failed to get payment ID from response");
+        }
+
+        setPaymentId(paymentResponse.id);
         setPaymentStep("processing");
 
         // Step 2: Simulate payment processing
-        toast.info("Processing payment...", { autoClose: 2000 });
+        // toast.info("Processing payment...", { autoClose: 2000 });
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         // Step 3: Complete payment
         setPaymentStep("completing");
         
         const completionPayload = {
-          paymentId: paymentResponse.paymentId,
+          paymentId: paymentResponse.id, // Include paymentId in payload
+          status: "completed" as const,
           gatewayPaymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           gatewaySignature: `sig_${Math.random().toString(36).substr(2, 20)}`,
-          status: "completed" as const,
+          transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          gatewayResponse: {
+            gateway: "razorpay",
+            orderId: `order_${Date.now()}`,
+            paymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            signature: `sig_${Math.random().toString(36).substr(2, 20)}`
+          }
         };
 
         console.log("💳 Completing payment with payload:", completionPayload);
         const completedPayment = await completeInventoryPayment(
-          paymentResponse.paymentId, 
+          paymentResponse.id, 
           completionPayload
         );
         
         console.log("✅ Payment completed:", completedPayment);
+        // toast.success("Payment completed successfully!");
         setPaymentStep("success");
 
         // Start countdown for redirect

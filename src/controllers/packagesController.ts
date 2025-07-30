@@ -52,18 +52,36 @@ export interface PackagePaymentPayload {
   amount: number;
   currency: string;
   method: "credit_card" | "debit_card" | "upi" | "net_banking" | "wallet";
-  gatewayOrderId: string;
+  deliveryAddress?: string;
+  transactionId?: string;
+  gatewayResponse?: {
+    gateway: string;
+    paymentIntentId?: string;
+    chargeId?: string;
+    orderId?: string;
+    paymentId?: string;
+  };
 }
 
 export interface PaymentStatusPayload {
   paymentId: string;
-  gatewayPaymentId: string;
-  gatewaySignature: string;
   status: "completed" | "failed";
+  gatewayPaymentId?: string;
+  gatewaySignature?: string;
+  transactionId?: string;
+  gatewayResponse?: {
+    gateway: string;
+    orderId?: string;
+    paymentId?: string;
+    signature?: string;
+    errorCode?: string;
+    errorMessage?: string;
+  };
+  failureReason?: string;
 }
 
 export interface PackagePaymentResponse {
-  paymentId: string;
+  id: string;
   packageId: string;
   userId: string;
   petId: string;
@@ -71,9 +89,13 @@ export interface PackagePaymentResponse {
   currency: string;
   method: string;
   status: "pending" | "completed" | "failed";
-  gatewayOrderId: string;
-  gatewayPaymentId: string | null;
-  gatewaySignature: string | null;
+  transactionId?: string;
+  gatewayResponse?: {
+    gateway: string;
+    orderId?: string;
+    paymentId?: string;
+    signature?: string;
+  };
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
@@ -159,7 +181,7 @@ export const initiatePackagePayment = async (
     console.log("💳 Initiating package payment...", payload);
     const response = await axiosInstance.post("/payment/create", payload);
     console.log("✅ Package payment initiated successfully:", response.data);
-    toast.success("Payment initiated successfully!");
+    // Remove duplicate toast - let the component handle success messaging
     return response.data.data;
   } catch (error: unknown) {
     console.error("❌ Failed to initiate package payment:", error);
@@ -179,13 +201,13 @@ export const initiatePackagePayment = async (
     }
     
     const errorMessage = handleApiError(error);
-    toast.error(errorMessage);
+    // Only throw error, let component handle error toast
     throw new Error(errorMessage);
   }
 };
 
 /**
- * Complete package payment
+ * Complete package payment via webhook
  * @param paymentId - Payment ID
  * @param payload - Payment completion payload
  * @returns Promise<PackagePaymentResponse>
@@ -195,15 +217,26 @@ export const completePackagePayment = async (
   payload: PaymentStatusPayload
 ): Promise<PackagePaymentResponse> => {
   try {
-    console.log(`💳 Completing package payment: ${paymentId}`, payload);
-    const response = await axiosInstance.patch(`/payment/${paymentId}/status`, payload);
+    // Validate paymentId
+    if (!paymentId) {
+      throw new Error("Payment ID is required to complete payment");
+    }
+
+    // Ensure paymentId is in the payload
+    const completePayload = {
+      ...payload,
+      paymentId
+    };
+
+    console.log(`💳 Completing package payment via webhook: ${paymentId}`, completePayload);
+    const response = await axiosInstance.post("/payment/webhook", completePayload);
     console.log("✅ Package payment completed successfully:", response.data);
-    toast.success("Payment completed successfully!");
+    // Remove duplicate toast - let the component handle success messaging
     return response.data.data;
   } catch (error: unknown) {
     console.error("❌ Failed to complete package payment:", error);
     const errorMessage = handleApiError(error);
-    toast.error(errorMessage);
+    // Only throw error, let component handle error toast
     throw new Error(errorMessage);
   }
 };
