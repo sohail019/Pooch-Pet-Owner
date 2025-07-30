@@ -116,7 +116,7 @@ const PackagePaymentSection: React.FC<PackagePaymentSectionProps> = ({
       );
       
       console.log("✅ Payment completed:", completedPayment);
-      toast.success("Payment completed successfully!");
+      // toast.success("Payment completed successfully!");
       onPaymentSuccess();
 
     } catch (err) {

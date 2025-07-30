@@ -12,13 +12,13 @@ const PackageFeatures: React.FC<PackageFeaturesProps> = ({ features, duration })
   return (
     <Card className="border-0 shadow-md">
       <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-3">
+        <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg">
             <Star className="w-5 h-5 text-green-600" />
           </div>
           Package Features
         </CardTitle>
-        <p className="text-gray-600 text-sm mt-2">Everything included in this package</p>
+        <p className="text-gray-400 text-sm mt-2">Everything included in this package</p>
       </CardHeader>
       
       <CardContent className="pt-0 space-y-6">

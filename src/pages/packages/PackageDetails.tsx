@@ -165,7 +165,7 @@ const PackageDetails: React.FC = () => {
       }
 
       setPaymentId(paymentResponse.id);
-      toast.success("Payment initiated successfully!");
+      // toast.success("Payment initiated successfully!");
 
       // Simulate payment processing delay
       await new Promise(resolve => setTimeout(resolve, 3000));
@@ -346,13 +346,13 @@ const PackageDetails: React.FC = () => {
         {/* Pet Selection and Payment Section */}
         <Card className="border-0 shadow-md">
           <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-3">
+            <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
               <div className="p-2 bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg">
                 <User className="w-5 h-5 text-green-600" />
               </div>
               Select Pet & Purchase Package
             </CardTitle>
-            <p className="text-gray-600 text-sm">Choose which pet this package is for</p>
+            <p className="text-gray-400 text-sm">Choose which pet this package is for</p>
           </CardHeader>
           
           <CardContent>
@@ -402,7 +402,7 @@ const PackageDetails: React.FC = () => {
                           </div>
                         </Avatar>
                         <div className="text-left">
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-white">
                             {pets.find(p => p.id === selectedPetId)?.name}
                           </div>
                           <div className="text-sm text-gray-500">
