@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { ArrowLeft, User, Plus, AlertCircle, ChevronDown } from "lucide-react";
+import { ArrowLeft, User, Plus, AlertCircle, ChevronDown, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { RootState } from "@/redux/store";
-import { getPackageById, initiatePackagePayment, completePackagePayment } from "@/controllers/packagesController";
+import { getPackageById, initiatePackagePayment } from "@/controllers/packagesController";
+import { completePayment } from "@/controllers/paymentController";
 import { fetchPets } from "@/controllers/pet/petController";
 import { Package } from "@/redux/slices/packagesSlice";
 import { Pet } from "@/redux/slices/petsSlice";
@@ -120,9 +121,43 @@ const PackageDetails: React.FC = () => {
   };
 
   // Payment state
-  const [paymentState, setPaymentState] = useState<"idle" | "processing" | "success" | "error">("idle");
+  const [paymentState, setPaymentState] = useState<"idle" | "processing" | "initiated" | "success" | "error">("idle");
   const [paymentId, setPaymentId] = useState<string>("");
   const [paymentError, setPaymentError] = useState<string>("");
+  const [isCompletingPayment, setIsCompletingPayment] = useState(false);
+
+  // Handle manual payment completion
+  const handleCompletePayment = async () => {
+    if (!paymentId) {
+      toast.error("No payment ID found");
+      return;
+    }
+
+    try {
+      setIsCompletingPayment(true);
+      console.log("💳 Completing payment manually:", paymentId);
+      
+      const completedPayment = await completePayment(paymentId, "completed");
+      console.log("✅ Payment completed:", completedPayment);
+      
+      toast.success("Payment completed successfully!");
+      setPaymentState("success");
+
+      // Auto-redirect after showing success
+      setTimeout(() => {
+        handlePaymentSuccess();
+      }, 2000);
+
+    } catch (err) {
+      console.error("❌ Failed to complete payment:", err);
+      const errorMsg = err instanceof Error ? err.message : "Failed to complete payment. Please try again.";
+      setPaymentError(errorMsg);
+      setPaymentState("error");
+      toast.error(errorMsg);
+    } finally {
+      setIsCompletingPayment(false);
+    }
+  };
 
   // Handle Buy Now button click
   const handleBuyNow = async () => {
@@ -165,37 +200,11 @@ const PackageDetails: React.FC = () => {
       }
 
       setPaymentId(paymentResponse.id);
-      // toast.success("Payment initiated successfully!");
+      toast.success("Payment initiated successfully!");
+      setPaymentState("initiated"); // Payment initiated, waiting for manual completion
 
-      // Simulate payment processing delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Complete payment
-      const completionPayload = {
-        paymentId: paymentResponse.id,
-        status: "completed" as const,
-        gatewayPaymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        gatewaySignature: `sig_${Math.random().toString(36).substr(2, 20)}`,
-        transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        gatewayResponse: {
-          gateway: "razorpay",
-          orderId: `order_${Date.now()}`,
-          paymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          signature: `sig_${Math.random().toString(36).substr(2, 20)}`
-        }
-      };
-
-      console.log("💳 Completing payment with payload:", completionPayload);
-      const completedPayment = await completePackagePayment(paymentResponse.id, completionPayload);
-      
-      console.log("✅ Payment completed:", completedPayment);
-      toast.success("Payment completed successfully!");
-      setPaymentState("success");
-
-      // Auto-redirect after showing success
-      setTimeout(() => {
-        handlePaymentSuccess();
-      }, 3000);
+      // Don't auto-complete, let user manually complete
+      // User can now manually complete the payment using the Complete Payment button
 
     } catch (err) {
       console.error("❌ Payment failed:", err);
@@ -210,9 +219,11 @@ const PackageDetails: React.FC = () => {
   const handleDialogClose = () => {
     if (paymentState !== "processing") {
       setPaymentDialogOpen(false);
-      setPaymentState("idle");
-      setPaymentId("");
-      setPaymentError("");
+      if (paymentState !== "initiated") { // Keep payment state if payment was initiated
+        setPaymentState("idle");
+        setPaymentId("");
+        setPaymentError("");
+      }
     }
   };
 
@@ -413,7 +424,7 @@ const PackageDetails: React.FC = () => {
                           </div>
                           <div className="text-sm text-gray-500">
                             {pets.find((p) => p.id === selectedPetId)?.species}{" "}
-                            • {pets.find((p) => p.id === selectedPetId)?.age}{" "}
+                            • {new Date().getFullYear() - new Date(pets.find((p) => p.id === selectedPetId)?.dateOfBirth || "").getFullYear()}{" "}
                             years
                           </div>
                         </div>
@@ -451,7 +462,7 @@ const PackageDetails: React.FC = () => {
                               {pet.name}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {pet.species} • {pet.age} years
+                              {pet.species} • {new Date().getFullYear() - new Date(pet.dateOfBirth).getFullYear()} years
                             </div>
                           </div>
                           {selectedPetId === pet.id && (
@@ -484,6 +495,45 @@ const PackageDetails: React.FC = () => {
                   )}
                 </Button>
 
+                {/* Complete Payment Button - Show when payment is initiated */}
+                {paymentState === "initiated" && paymentId && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="text-center mb-3">
+                      <p className="text-sm text-blue-800 font-medium mb-1">
+                        Payment Initiated Successfully!
+                      </p>
+                      <p className="text-xs text-blue-600">
+                        Payment ID: <span className="font-mono">{paymentId}</span>
+                      </p>
+                    </div>
+                    <Button
+                      onClick={handleCompletePayment}
+                      disabled={isCompletingPayment}
+                      className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50"
+                    >
+                      {isCompletingPayment ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                          Completing Payment...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Complete Payment
+                        </>
+                      )}
+                    </Button>
+                    <div className="mt-2 text-center">
+                      <button
+                        onClick={() => navigate("/my-orders")}
+                        className="text-sm text-blue-600 hover:text-blue-700 underline"
+                      >
+                        View My Orders
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Add Pet Option */}
                 <div className="text-center pt-2 border-t">
                   <button
@@ -512,6 +562,7 @@ const PackageDetails: React.FC = () => {
           paymentId={paymentId}
           onClose={handleDialogClose}
           onPaymentSuccess={handlePaymentSuccess}
+          onCompletePayment={handleCompletePayment}
           errorMessage={paymentError}
           petName={pets.find((p) => p.id === selectedPetId)?.name}
         />

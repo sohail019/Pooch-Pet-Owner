@@ -208,6 +208,7 @@ export const initiatePackagePayment = async (
 
 /**
  * Complete package payment via webhook
+ * @deprecated Use completePayment from paymentController instead
  * @param paymentId - Payment ID
  * @param payload - Payment completion payload
  * @returns Promise<PackagePaymentResponse>

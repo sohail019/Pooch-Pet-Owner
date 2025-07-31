@@ -3,7 +3,7 @@ import { CreditCard, X, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export type PaymentState = "idle" | "processing" | "success" | "error";
+export type PaymentState = "idle" | "processing" | "initiated" | "success" | "error";
 
 interface PaymentItem {
   id: string;
@@ -22,6 +22,7 @@ interface PaymentDialogProps {
   countdown?: number;
   onClose: () => void;
   onPaymentSuccess: () => void;
+  onCompletePayment?: () => void; // Optional completion handler
   errorMessage?: string;
   // Optional additional info for display
   petName?: string;
@@ -36,6 +37,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   countdown = 3,
   onClose,
   onPaymentSuccess,
+  onCompletePayment,
   errorMessage,
   petName,
 }) => {
@@ -77,6 +79,14 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
           description: "We are processing your payment, please wait...",
           icon: <div className="w-6 h-6 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />,
           color: "orange"
+        };
+      
+      case "initiated":
+        return {
+          title: "Payment Initiated",
+          description: "Click 'Complete Payment' to finish the transaction",
+          icon: <CreditCard className="w-6 h-6 text-blue-600" />,
+          color: "blue"
         };
       
       case "success":
@@ -215,6 +225,27 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
               <span>Secure payment powered by Razorpay</span>
             </div>
           </div>
+
+          {/* Initiated State Actions */}
+          {paymentState === "initiated" && onCompletePayment && (
+            <div className="flex gap-2">
+              <Button 
+                onClick={onClose}
+                variant="outline"
+                className="flex-1"
+                size="sm"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={onCompletePayment}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                size="sm"
+              >
+                Complete Payment
+              </Button>
+            </div>
+          )}
 
           {/* Success Actions */}
           {paymentState === "success" && (
