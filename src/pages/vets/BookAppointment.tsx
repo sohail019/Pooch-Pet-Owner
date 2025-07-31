@@ -237,56 +237,62 @@ const BookAppointment: React.FC = () => {
   // Success state
   if (bookingSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-4">
-        <div className="max-w-2xl mx-auto">
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
-            <CardContent className="p-8 text-center">
-              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-10 h-10 text-green-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Appointment Booked Successfully! 🎉
-              </h2>
-              <div className="space-y-3 text-left bg-gray-50 p-4 rounded-lg mb-6">
-                <div className="flex items-center gap-3">
-                  <User className="w-4 h-4 text-gray-600" />
-                  <span className="text-gray-900 font-medium">{vet.name}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-4 h-4 text-gray-600" />
-                  <span className="text-gray-900">{formData.appointmentDate}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="w-4 h-4 text-gray-600" />
-                  <span className="text-gray-900">{formData.startTime}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MessageSquare className="w-4 h-4 text-gray-600" />
-                  <span className="text-gray-900 capitalize">{formData.consultationType.replace('_', ' ')}</span>
-                </div>
-              </div>
-              <p className="text-gray-600 mb-6">
-                A WhatsApp notification has been sent to the vet. You will receive a confirmation shortly.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <Button 
-                  onClick={() => navigate("/")} 
-                  variant="outline"
-                  className="text-gray-700 border-gray-300"
-                >
-                  Back to Home
-                </Button>
-                <Button 
-                  onClick={() => navigate("/my-appointments")}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                >
-                  View My Appointments
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white flex items-center justify-center px-4 py-8">
+      <div className="max-w-xl w-full mx-auto">
+        <Card className="border-0 shadow-2xl bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+        <CardContent className="p-10 text-center">
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-24 h-24 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-400 rounded-full flex items-center justify-center shadow-lg mb-4">
+            <CheckCircle className="w-12 h-12 text-white drop-shadow-lg" />
+            </div>
+            <h2 className="text-3xl font-extrabold text-white mb-2 tracking-tight">
+            Appointment Confirmed!
+            </h2>
+            <p className="text-lg text-gray-300 mb-2">
+            Your booking was successful 🎉
+            </p>
+          </div>
+          <div className="space-y-4 text-left bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 p-6 rounded-xl shadow-inner mb-8 border border-gray-700">
+            <div className="flex items-center gap-3">
+            <User className="w-5 h-5 text-blue-400" />
+            <span className="text-white font-semibold">{vet.name}</span>
+            </div>
+            <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-indigo-400" />
+            <span className="text-white font-medium">{formData.appointmentDate}</span>
+            </div>
+            <div className="flex items-center gap-3">
+            <Clock className="w-5 h-5 text-purple-400" />
+            <span className="text-white font-medium">{formData.startTime}</span>
+            </div>
+            <div className="flex items-center gap-3">
+            <MessageSquare className="w-5 h-5 text-green-400" />
+            <span className="text-white font-medium capitalize">{formData.consultationType.replace('_', ' ')}</span>
+            </div>
+          </div>
+          <p className="text-gray-400 mb-8 text-base">
+            A WhatsApp notification has been sent to the vet.<br />
+            You will receive a confirmation shortly.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Button 
+            onClick={() => navigate("/")} 
+            variant="outline"
+            className="text-gray-200 border-gray-600 bg-gray-900 hover:bg-gray-800 hover:text-white transition-all"
+            >
+            Back to Home
+            </Button>
+            <Button 
+            onClick={() => navigate("/my-appointments")}
+            className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg"
+            >
+            View My Appointments
+            </Button>
+          </div>
+        </CardContent>
+        </Card>
       </div>
+    </div>
     );
   }
 
