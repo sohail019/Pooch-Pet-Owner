@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { CreditCard, X, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { 
   initiateInventoryPayment, 
-  completeInventoryPayment, 
   InventoryPaymentPayload,
   InventoryItem 
 } from "@/controllers/inventoryController";
+import { completePayment } from "@/controllers/paymentController";
 
 interface PaymentSectionProps {
   product: InventoryItem;
@@ -27,95 +28,88 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   onPaymentError,
   onCancel,
 }) => {
-  const [paymentStep, setPaymentStep] = useState<"initiating" | "processing" | "completing" | "success" | "error">("initiating");
+  const [paymentStep, setPaymentStep] = useState<"initiate" | "initiated" | "completing" | "success" | "error">("initiate");
   const [paymentId, setPaymentId] = useState<string>("");
-  const [countdown, setCountdown] = useState(3);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const navigate = useNavigate();
 
-  // Handle payment process
-  useEffect(() => {
-    const processPayment = async () => {
-      try {
-        // Step 1: Initiate payment
-        setPaymentStep("initiating");
-        
-        const paymentPayload: InventoryPaymentPayload = {
-          productId: product.id,
-          quantity: quantity,
-          amount: totalAmount,
-          currency: "INR",
-          method: "credit_card",
-          deliveryAddress: "123 Main Street, Mumbai, Maharashtra 400001, India"
-        };
+  // Handle payment initiation
+  const handleInitiatePayment = async () => {
+    try {
+      setPaymentStep("initiate");
+      
+      const paymentPayload: InventoryPaymentPayload = {
+        productId: product.id,
+        quantity: quantity,
+        amount: totalAmount,
+        currency: "INR",
+        method: "credit_card",
+        deliveryAddress: "123 Main Street, Mumbai, Maharashtra 400001, India"
+      };
 
-        console.log("💳 Initiating payment with payload:", paymentPayload);
-        const paymentResponse = await initiateInventoryPayment(paymentPayload);
-        console.log("✅ Payment initiated:", paymentResponse);
-        
-        // Validate that we received a valid payment ID
-        if (!paymentResponse.id) {
-          throw new Error("Failed to get payment ID from response");
-        }
-
-        setPaymentId(paymentResponse.id);
-        setPaymentStep("processing");
-
-        // Step 2: Simulate payment processing
-        // toast.info("Processing payment...", { autoClose: 2000 });
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        // Step 3: Complete payment
-        setPaymentStep("completing");
-        
-        const completionPayload = {
-          paymentId: paymentResponse.id, // Include paymentId in payload
-          status: "completed" as const,
-          gatewayPaymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          gatewaySignature: `sig_${Math.random().toString(36).substr(2, 20)}`,
-          transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          gatewayResponse: {
-            gateway: "razorpay",
-            orderId: `order_${Date.now()}`,
-            paymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            signature: `sig_${Math.random().toString(36).substr(2, 20)}`
-          }
-        };
-
-        console.log("💳 Completing payment with payload:", completionPayload);
-        const completedPayment = await completeInventoryPayment(
-          paymentResponse.id, 
-          completionPayload
-        );
-        
-        console.log("✅ Payment completed:", completedPayment);
-        // toast.success("Payment completed successfully!");
-        setPaymentStep("success");
-
-        // Start countdown for redirect
-        const countdownInterval = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev <= 1) {
-              clearInterval(countdownInterval);
-              onPaymentSuccess();
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-
-      } catch (err) {
-        console.error("❌ Payment failed:", err);
-        const errorMessage = err instanceof Error ? err.message : "Payment failed. Please try again.";
-        setPaymentStep("error");
-        onPaymentError(errorMessage);
+      console.log("💳 Initiating payment with payload:", paymentPayload);
+      const paymentResponse = await initiateInventoryPayment(paymentPayload);
+      console.log("✅ Payment initiated:", paymentResponse);
+      
+      if (!paymentResponse.id) {
+        throw new Error("Failed to get payment ID from response");
       }
-    };
 
-    processPayment();
-  }, [product.id, quantity, totalAmount, onPaymentSuccess, onPaymentError]);
+      setPaymentId(paymentResponse.id);
+      setPaymentStep("initiated");
+      toast.success("Payment initiated successfully! Click 'Complete Payment' to finish.");
+
+    } catch (err) {
+      console.error("❌ Payment initiation failed:", err);
+      const errorMessage = err instanceof Error ? err.message : "Payment initiation failed. Please try again.";
+      setPaymentStep("error");
+      onPaymentError(errorMessage);
+      toast.error(errorMessage);
+    }
+  };
+
+  // Handle payment completion using new API
+  const handleCompletePayment = async () => {
+    if (!paymentId) {
+      toast.error("No payment ID available. Please initiate payment first.");
+      return;
+    }
+
+    try {
+      setIsCompleting(true);
+      setPaymentStep("completing");
+      
+      console.log("💳 Completing payment with ID:", paymentId);
+      const completedPayment = await completePayment(paymentId, "completed");
+      console.log("✅ Payment completed:", completedPayment);
+      
+      setPaymentStep("success");
+      toast.success("Payment completed successfully!");
+      
+      // Navigate to My Orders after short delay
+      setTimeout(() => {
+        navigate("/my-orders");
+      }, 2000);
+
+    } catch (err) {
+      console.error("❌ Payment completion failed:", err);
+      const errorMessage = err instanceof Error ? err.message : "Payment completion failed. Please try again.";
+      setPaymentStep("error");
+      onPaymentError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
+  // Auto-initiate payment on component mount
+  useEffect(() => {
+    handleInitiatePayment();
+  }, []);
 
   const getStepContent = () => {
     switch (paymentStep) {
-      case "initiating":
+      case "initiate":
         return {
           title: "Initiating Payment",
           description: "Setting up your payment...",
@@ -123,18 +117,18 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           color: "blue"
         };
       
-      case "processing":
+      case "initiated":
         return {
-          title: "Processing Payment",
-          description: "Please wait while we process your payment...",
-          icon: <div className="w-6 h-6 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />,
-          color: "orange"
+          title: "Payment Ready",
+          description: "Payment has been initiated. Click 'Complete Payment' to finish your purchase.",
+          icon: <CreditCard className="w-6 h-6 text-green-600" />,
+          color: "green"
         };
       
       case "completing":
         return {
-          title: "Completing Purchase",
-          description: "Finalizing your order...",
+          title: "Completing Payment",
+          description: "Finalizing your payment...",
           icon: <div className="w-6 h-6 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />,
           color: "green"
         };
@@ -142,7 +136,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       case "success":
         return {
           title: "Payment Successful!",
-          description: `Redirecting to home page in ${countdown} seconds...`,
+          description: "Redirecting to My Orders page...",
           icon: <CheckCircle className="w-6 h-6 text-green-600" />,
           color: "green"
         };
@@ -230,15 +224,39 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             )}
           </div>
 
+          {/* Complete Payment Button */}
+          {paymentStep === "initiated" && (
+            <div className="flex flex-col gap-3">
+              <Button 
+                onClick={handleCompletePayment}
+                disabled={!paymentId || isCompleting}
+                className="w-full bg-green-600 hover:bg-green-700"
+                size="lg"
+              >
+                {isCompleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Completing Payment...
+                  </>
+                ) : (
+                  "Complete Payment"
+                )}
+              </Button>
+              <p className="text-xs text-gray-500 text-center">
+                Click to complete your payment and confirm your order
+              </p>
+            </div>
+          )}
+
           {/* Progress Steps */}
           <div className="flex items-center justify-center gap-2">
-            {["initiating", "processing", "completing", "success"].map((step, index) => (
+            {["initiate", "initiated", "completing", "success"].map((step, index) => (
               <React.Fragment key={step}>
                 <div
                   className={`w-3 h-3 rounded-full transition-colors ${
                     paymentStep === step
                       ? `bg-${stepContent.color}-600`
-                      : index < ["initiating", "processing", "completing", "success"].indexOf(paymentStep)
+                      : index < ["initiate", "initiated", "completing", "success"].indexOf(paymentStep)
                       ? "bg-green-600"
                       : "bg-gray-300"
                   }`}
@@ -246,7 +264,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 {index < 3 && (
                   <div
                     className={`w-8 h-0.5 transition-colors ${
-                      index < ["initiating", "processing", "completing", "success"].indexOf(paymentStep)
+                      index < ["initiate", "initiated", "completing", "success"].indexOf(paymentStep)
                         ? "bg-green-600"
                         : "bg-gray-300"
                     }`}
@@ -268,7 +286,15 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           {paymentStep === "success" && (
             <div className="flex gap-2">
               <Button 
+                onClick={() => navigate("/my-orders")}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                size="sm"
+              >
+                View My Orders
+              </Button>
+              <Button 
                 onClick={onPaymentSuccess}
+                variant="outline"
                 className="flex-1"
                 size="sm"
               >
@@ -289,11 +315,11 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 Cancel
               </Button>
               <Button 
-                onClick={() => window.location.reload()}
+                onClick={handleInitiatePayment}
                 className="flex-1"
                 size="sm"
               >
-                Try Again
+                Retry Payment
               </Button>
             </div>
           )}

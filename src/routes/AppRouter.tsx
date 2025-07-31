@@ -17,6 +17,7 @@ import VetsList from '@/pages/vets/VetsList';
 import VetAvailability from '@/pages/vets/VetAvailability';
 import BookAppointment from '@/pages/vets/BookAppointment';
 import MyAppointments from '@/pages/vets/MyAppointments';
+import MyOrders from '@/pages/orders/MyOrders';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -48,6 +49,9 @@ const AppRouter = () => (
 
         {/* Inventory Details & Payment */}
         <Route path="/inventory/:id" element={<InventoryDetails />} />
+
+        {/* My Orders */}
+        <Route path="/my-orders" element={<MyOrders />} />
 
         {/* Vet Appointments */}
         <Route path="/vets" element={<VetsList />} />

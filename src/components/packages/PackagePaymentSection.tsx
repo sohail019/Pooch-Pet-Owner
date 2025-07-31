@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import { Package } from "@/redux/slices/packagesSlice";
 import { Pet } from "@/redux/slices/petsSlice";
 import { 
   initiatePackagePayment, 
-  completePackagePayment, 
   PackagePaymentPayload 
 } from "@/controllers/packagesController";
+import { completePayment } from "@/controllers/paymentController";
 import { toast } from "react-toastify";
 
 interface PackagePaymentSectionProps {
@@ -44,9 +45,13 @@ const PackagePaymentSection: React.FC<PackagePaymentSectionProps> = ({
 }) => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [petDropdownOpen, setPetDropdownOpen] = useState(false);
+  const [paymentId, setPaymentId] = useState<string>("");
+  const [paymentStep, setPaymentStep] = useState<"ready" | "initiated" | "completing" | "success">("ready");
+  const [isCompleting, setIsCompleting] = useState(false);
+  const navigate = useNavigate();
 
-  // Handle payment process
-  const handlePayment = async () => {
+  // Handle payment initiation
+  const handleInitiatePayment = async () => {
     if (!selectedPetId) {
       toast.error("Please select a pet for this package");
       return;
@@ -62,69 +67,68 @@ const PackagePaymentSection: React.FC<PackagePaymentSectionProps> = ({
         return;
       }
 
-      // Prepare payment payload - use correct field names and values
+      // Prepare payment payload
       const paymentPayload: PackagePaymentPayload = {
         packageId: pkg.id,
         petId: selectedPetId,
         amount: priceValue,
         currency: "INR",
-        method: "credit_card", // Use the correct field name and value
+        method: "credit_card",
         deliveryAddress: "123 Main Street, Mumbai, Maharashtra 400001, India"
       };
 
-      console.log("💳 Initiating payment with payload:", paymentPayload);
-      console.log("💳 Package details:", { id: pkg.id, name: pkg.name, price: pkg.price });
-      console.log("💳 Selected pet ID:", selectedPetId);
-
-      // Step 1: Initiate payment
+      console.log("💳 Initiating package payment with payload:", paymentPayload);
       const paymentResponse = await initiatePackagePayment(paymentPayload);
-      console.log("✅ Payment initiated:", paymentResponse);
+      console.log("✅ Package payment initiated:", paymentResponse);
 
-      // Validate that we received a valid payment ID
       if (!paymentResponse.id) {
         throw new Error("Failed to get payment ID from response");
       }
 
-      // toast.success("Payment initiated successfully!");
-
-      // Mock payment gateway integration
-      // In real app, this would redirect to payment gateway
-      // toast.info("Processing payment...", { autoClose: 2000 });
-
-      // Simulate payment processing delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // Step 2: Complete payment (mock success)
-      const completionPayload = {
-        paymentId: paymentResponse.id, // Include paymentId in payload
-        status: "completed" as const,
-        gatewayPaymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        gatewaySignature: `sig_${Math.random().toString(36).substr(2, 20)}`,
-        transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        gatewayResponse: {
-          gateway: "razorpay",
-          orderId: `order_${Date.now()}`,
-          paymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          signature: `sig_${Math.random().toString(36).substr(2, 20)}`
-        }
-      };
-
-      console.log("💳 Completing payment with payload:", completionPayload);
-      const completedPayment = await completePackagePayment(
-        paymentResponse.id, 
-        completionPayload
-      );
-      
-      console.log("✅ Payment completed:", completedPayment);
-      // toast.success("Payment completed successfully!");
-      onPaymentSuccess();
+      setPaymentId(paymentResponse.id);
+      setPaymentStep("initiated");
+      toast.success("Payment initiated successfully! Click 'Complete Payment' to finish.");
 
     } catch (err) {
-      console.error("❌ Payment failed:", err);
-      const errorMessage = err instanceof Error ? err.message : "Payment failed. Please try again.";
+      console.error("❌ Package payment initiation failed:", err);
+      const errorMessage = err instanceof Error ? err.message : "Payment initiation failed. Please try again.";
       onPaymentError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setPaymentLoading(false);
+    }
+  };
+
+  // Handle payment completion using new API
+  const handleCompletePayment = async () => {
+    if (!paymentId) {
+      toast.error("No payment ID available. Please initiate payment first.");
+      return;
+    }
+
+    try {
+      setIsCompleting(true);
+      setPaymentStep("completing");
+      
+      console.log("💳 Completing package payment with ID:", paymentId);
+      const completedPayment = await completePayment(paymentId, "completed");
+      console.log("✅ Package payment completed:", completedPayment);
+      
+      setPaymentStep("success");
+      toast.success("Package payment completed successfully!");
+      
+      // Navigate to My Packages after short delay
+      setTimeout(() => {
+        navigate("/my-packages");
+      }, 2000);
+
+    } catch (err) {
+      console.error("❌ Package payment completion failed:", err);
+      const errorMessage = err instanceof Error ? err.message : "Payment completion failed. Please try again.";
+      onPaymentError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsCompleting(false);
     }
   };
 
@@ -315,25 +319,90 @@ const PackagePaymentSection: React.FC<PackagePaymentSectionProps> = ({
               </div>
             )}
 
-            {/* Payment Button */}
-            <Button
-              onClick={handlePayment}
-              disabled={!selectedPetId || paymentLoading || loading.payment || pets.length === 0}
-              className="w-full h-12 text-base font-semibold"
-              size="lg"
-            >
-              {paymentLoading ? (
+            {/* Payment Buttons */}
+            {paymentStep === "ready" && (
+              <Button
+                onClick={handleInitiatePayment}
+                disabled={!selectedPetId || paymentLoading || loading.payment || pets.length === 0}
+                className="w-full h-12 text-base font-semibold"
+                size="lg"
+              >
+                {paymentLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Initiating Payment...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4" />
+                    Initiate Payment - ₹{parseFloat(pkg.price).toFixed(2)}
+                  </div>
+                )}
+              </Button>
+            )}
+
+            {paymentStep === "initiated" && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <p className="text-green-600 font-medium">Payment Initiated Successfully!</p>
+                  <p className="text-sm text-gray-600">Payment ID: <span className="font-mono">{paymentId}</span></p>
+                </div>
+                <Button
+                  onClick={handleCompletePayment}
+                  disabled={!paymentId || isCompleting}
+                  className="w-full h-12 text-base font-semibold bg-green-600 hover:bg-green-700"
+                  size="lg"
+                >
+                  {isCompleting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Completing Payment...
+                    </div>
+                  ) : (
+                    "Complete Payment"
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {paymentStep === "completing" && (
+              <Button
+                disabled
+                className="w-full h-12 text-base font-semibold"
+                size="lg"
+              >
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Processing Payment...
+                  Finalizing Payment...
                 </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4" />
-                  Pay ₹{parseFloat(pkg.price).toFixed(2)}
+              </Button>
+            )}
+
+            {paymentStep === "success" && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <p className="text-green-600 font-bold">Payment Completed Successfully! 🎉</p>
+                  <p className="text-sm text-gray-600">Redirecting to My Packages...</p>
                 </div>
-              )}
-            </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => navigate("/my-packages")}
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    size="lg"
+                  >
+                    View My Packages
+                  </Button>
+                  <Button
+                    onClick={onPaymentSuccess}
+                    variant="outline"
+                    className="flex-1"
+                    size="lg"
+                  >
+                    Continue
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Payment Method Info */}
             <div className="text-center text-xs text-gray-500">

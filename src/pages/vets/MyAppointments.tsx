@@ -225,8 +225,8 @@ const MyAppointments: React.FC = () => {
         </div>
 
         {/* Book New Appointment Button */}
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-white">
+        <div className="flex flex-col items-center justify-center gap-4 md:flex-row md:justify-between md:items-center mb-2">
+          <h2 className="text-xl font-semibold text-white text-center md:text-left">
             {filter === "all" ? "All Appointments" : 
              filter === "upcoming" ? "Upcoming Appointments" :
              filter === "completed" ? "Completed Appointments" :
@@ -234,7 +234,7 @@ const MyAppointments: React.FC = () => {
           </h2>
           <Button
             onClick={() => navigate("/vets")}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 w-full md:w-auto"
           >
             <Calendar className="w-4 h-4 mr-2" />
             Book New Appointment
@@ -266,27 +266,26 @@ const MyAppointments: React.FC = () => {
             ))}
           </div>
         ) : sortedAppointments.length === 0 ? (
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
-                <Calendar className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-700 to-indigo-800 rounded-full flex items-center justify-center">
+                <Calendar className="w-8 h-8 text-blue-300" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold text-white mb-2">
                 {filter === "all" ? "No Appointments Yet" :
                  filter === "upcoming" ? "No Upcoming Appointments" :
                  filter === "completed" ? "No Completed Appointments" :
                  "No Cancelled Appointments"}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-300 mb-6">
                 {filter === "all" || filter === "upcoming" 
                   ? "Book your first appointment with our veterinarians."
-                  : `You don't have any ${filter} appointments.`
-                }
+                  : `You don't have any ${filter} appointments.`}
               </p>
               {(filter === "all" || filter === "upcoming") && (
                 <Button
                   onClick={() => navigate("/vets")}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white"
                 >
                   <Calendar className="w-4 h-4 mr-2" />
                   Book Your First Appointment
@@ -297,7 +296,10 @@ const MyAppointments: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {sortedAppointments.map((appointment) => (
-              <Card key={appointment.id} className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 hover:shadow-xl transition-shadow">
+              <Card
+                key={appointment.id}
+                className="border-0 shadow-lg bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 hover:shadow-xl transition-shadow"
+              >
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     {/* Header */}
@@ -305,23 +307,23 @@ const MyAppointments: React.FC = () => {
                       <div className="flex items-start gap-4">
                         <Avatar className="w-12 h-12">
                           {appointment.vet.profilePicture ? (
-                            <img 
-                              src={appointment.vet.profilePicture} 
+                            <img
+                              src={appointment.vet.profilePicture}
                               alt={appointment.vet.name}
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                            <div className="w-full h-full bg-gradient-to-r from-blue-700 to-indigo-800 flex items-center justify-center text-white font-bold">
                               {appointment.vet.name.split(' ').map(n => n[0]).join('')}
                             </div>
                           )}
                         </Avatar>
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{appointment.vet.name}</h3>
-                          <p className="text-sm text-gray-600">{appointment.vet.specialization.join(", ")}</p>
+                          <h3 className="text-lg font-semibold text-white">{appointment.vet.name}</h3>
+                          <p className="text-sm text-gray-300">{appointment.vet.specialization.join(", ")}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <User className="w-3 h-3 text-gray-500" />
-                            <span className="text-sm text-gray-600">{appointment.pet.name} ({appointment.pet.species})</span>
+                            <User className="w-3 h-3 text-gray-400" />
+                            <span className="text-sm text-gray-300">{appointment.pet.name} ({appointment.pet.species})</span>
                           </div>
                         </div>
                       </div>
@@ -329,32 +331,32 @@ const MyAppointments: React.FC = () => {
                     </div>
 
                     {/* Appointment Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-800 rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-500" />
+                        <Calendar className="w-4 h-4 text-blue-400" />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">Date</p>
-                          <p className="text-sm text-gray-600">{formatDate(appointment.appointmentDate)}</p>
+                          <p className="text-sm font-medium text-white">Date</p>
+                          <p className="text-sm text-gray-300">{formatDate(appointment.appointmentDate)}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-gray-500" />
+                        <Clock className="w-4 h-4 text-indigo-400" />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">Time</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm font-medium text-white">Time</p>
+                          <p className="text-sm text-gray-300">
                             {formatTime(appointment.startTime)} - {formatTime(appointment.endTime)}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {appointment.consultationType === "telemedicine" ? (
-                          <Video className="w-4 h-4 text-green-500" />
+                          <Video className="w-4 h-4 text-green-400" />
                         ) : (
-                          <MapPin className="w-4 h-4 text-orange-500" />
+                          <MapPin className="w-4 h-4 text-orange-400" />
                         )}
                         <div>
-                          <p className="text-sm font-medium text-gray-900">Type</p>
-                          <p className="text-sm text-gray-600 capitalize">
+                          <p className="text-sm font-medium text-white">Type</p>
+                          <p className="text-sm text-gray-300 capitalize">
                             {appointment.consultationType.replace('_', ' ')}
                           </p>
                         </div>
@@ -364,51 +366,72 @@ const MyAppointments: React.FC = () => {
                     {/* Reason and Notes */}
                     <div className="space-y-2">
                       <div className="flex items-start gap-2">
-                        <MessageSquare className="w-4 h-4 text-gray-500 mt-0.5" />
+                        <MessageSquare className="w-4 h-4 text-blue-400 mt-0.5" />
                         <div>
-                          <p className="text-sm font-medium text-gray-900">Reason for Visit</p>
-                          <p className="text-sm text-gray-600">{appointment.reason}</p>
+                          <p className="text-sm font-medium text-white">Reason for Visit</p>
+                          <p className="text-sm text-gray-300">{appointment.reason}</p>
                         </div>
                       </div>
                       {appointment.notes && (
                         <div className="flex items-start gap-2">
-                          <MessageSquare className="w-4 h-4 text-gray-500 mt-0.5" />
+                          <MessageSquare className="w-4 h-4 text-indigo-400 mt-0.5" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">Additional Notes</p>
-                            <p className="text-sm text-gray-600">{appointment.notes}</p>
+                            <p className="text-sm font-medium text-white">Additional Notes</p>
+                            <p className="text-sm text-gray-300">{appointment.notes}</p>
                           </div>
                         </div>
                       )}
                     </div>
 
                     {/* Vet Contact */}
-                    <div className="flex items-center gap-4 pt-2 border-t">
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-3 h-3 text-gray-500" />
-                        <span className="text-sm text-gray-600">{appointment.vet.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-3 h-3 text-gray-500" />
-                        <span className="text-sm text-gray-600">{appointment.vet.email}</span>
-                      </div>
+                    <div className="flex flex-col md:flex-row gap-2 md:gap-4 pt-2 border-t border-gray-700">
+                        <a
+                            href={`tel:${appointment.vet.phone}`}
+                            className="flex items-center gap-2 hover:underline focus:outline-none"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Phone className="w-3 h-3 text-gray-400" />
+                            <span className="text-sm text-gray-300">{appointment.vet.phone}</span>
+                        </a>
+                        <a
+                            href={`mailto:${appointment.vet.email}`}
+                            className="flex items-center gap-2 hover:underline focus:outline-none"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Mail className="w-3 h-3 text-gray-400" />
+                            <span className="text-sm text-gray-300">{appointment.vet.email}</span>
+                        </a>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2 pt-2 border-t">
+                    <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-700 mt-4 justify-end">
                       {appointment.status === "confirmed" && new Date(appointment.appointmentDate) >= new Date() && (
                         <>
                           {appointment.consultationType === "telemedicine" && (
-                            <Button size="sm" className="bg-green-500 hover:bg-green-600">
-                              <Video className="w-3 h-3 mr-1" />
-                              Join Call
+                            <Button
+                              size="sm"
+                              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-md flex items-center gap-2"
+                            >
+                              <Video className="w-4 h-4" />
+                              <span>Join Call</span>
                             </Button>
                           )}
-                          <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border border-red-500 text-red-500 hover:bg-red-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
+                          >
                             Cancel
                           </Button>
                         </>
                       )}
-                      <Button size="sm" variant="outline" className="text-gray-700 border-gray-300 hover:bg-gray-50">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border border-blue-500 text-blue-500 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
+                      >
                         View Details
                       </Button>
                     </div>

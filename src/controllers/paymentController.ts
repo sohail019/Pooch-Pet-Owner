@@ -37,6 +37,25 @@ export interface PaymentFilters {
   offset?: number;
 }
 
+export interface CompletePaymentPayload {
+  status: "completed";
+}
+
+export interface CompletePaymentResponse {
+  id: string;
+  userId: string;
+  itemType: "package" | "inventory";
+  itemId: string;
+  itemName: string;
+  amount: number;
+  quantity?: number;
+  status: "completed";
+  paymentMethod: "card" | "paypal" | "stripe";
+  transactionId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /**
  * Get user's payment history
  * @param filters - Optional filters for payment records
@@ -126,6 +145,35 @@ export const requestPaymentRefund = async (
     console.error("❌ Failed to request refund:", error);
     const errorMessage = handleApiError(error);
     toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Complete payment using the new API
+ * @param paymentId - Payment ID from initiate payment response
+ * @param status - Payment status to set (should be "completed")
+ * @returns Promise<CompletePaymentResponse>
+ */
+export const completePayment = async (
+  paymentId: string,
+  status: "completed"
+): Promise<CompletePaymentResponse> => {
+  try {
+    if (!paymentId) {
+      throw new Error("Payment ID is required to complete payment");
+    }
+
+    const payload: CompletePaymentPayload = { status };
+    
+    console.log(`💳 Completing payment: ${paymentId}`, payload);
+    const response = await axiosInstance.put(`/payment/${paymentId}/status`, payload);
+    console.log("✅ Payment completed successfully:", response.data);
+    
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to complete payment:", error);
+    const errorMessage = handleApiError(error);
     throw new Error(errorMessage);
   }
 };
