@@ -182,39 +182,47 @@ const MyAppointments: React.FC = () => {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto p-4 space-y-6">
         {/* Filter Tabs */}
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
-          <CardHeader>
-            <div className="flex flex-wrap gap-3">
-              {[
-                { key: "all", label: "All Appointments" },
-                { key: "upcoming", label: "Upcoming" },
-                { key: "completed", label: "Completed" },
-                { key: "cancelled", label: "Cancelled" },
-              ].map((tab) => (
-                <Button
-                  key={tab.key}
-                  variant={filter === tab.key ? "default" : "outline"}
-                  onClick={() => setFilter(tab.key as typeof filter)}
-                  className={filter === tab.key ? 
-                    "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700" : 
-                    "text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }
-                >
-                  {tab.label}
-                  <Badge variant="secondary" className="ml-2 bg-gray-100 text-gray-700">
-                    {tab.key === "all" ? appointments.length : 
-                     tab.key === "upcoming" ? appointments.filter(a => {
-                       const date = new Date(a.appointmentDate);
-                       const today = new Date();
-                       return date >= today && a.status !== "completed" && a.status !== "cancelled";
-                     }).length :
-                     appointments.filter(a => a.status === tab.key).length}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
-          </CardHeader>
-        </Card>
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-3 justify-center">
+            {[
+              { key: "all", label: "All" },
+              { key: "upcoming", label: "Upcoming" },
+              { key: "completed", label: "Completed" },
+              { key: "cancelled", label: "Cancelled" },
+            ].map((tab) => (
+              <Button
+            key={tab.key}
+            variant={filter === tab.key ? "default" : "ghost"}
+            onClick={() => setFilter(tab.key as typeof filter)}
+            className={`px-6 py-2 rounded-full font-medium transition-all
+              ${filter === tab.key
+                ? "bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg"
+                : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700"}
+            `}
+              >
+            {tab.label}
+            <Badge
+              variant="secondary"
+              className={`ml-2 px-2 py-0.5 rounded-full text-xs
+                ${filter === tab.key
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-gray-700 text-gray-300"}
+              `}
+            >
+              {tab.key === "all"
+                ? appointments.length
+                : tab.key === "upcoming"
+                ? appointments.filter(a => {
+                const date = new Date(a.appointmentDate);
+                const today = new Date();
+                return date >= today && a.status !== "completed" && a.status !== "cancelled";
+                  }).length
+                : appointments.filter(a => a.status === tab.key).length}
+            </Badge>
+              </Button>
+            ))}
+          </div>
+        </div>
 
         {/* Book New Appointment Button */}
         <div className="flex justify-between items-center">
