@@ -315,47 +315,48 @@ const BookAppointment: React.FC = () => {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Vet Summary Card */}
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
           <CardHeader>
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16">
-                {vet.profilePicture ? (
-                  <img 
-                    src={vet.profilePicture} 
-                    alt={vet.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                    {vet.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                )}
+            {vet.profilePicture ? (
+              <img 
+                src={vet.profilePicture} 
+                alt={vet.name}
+                className="w-full h-full object-cover rounded-full"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg rounded-full">
+                {vet.name.split(' ').map(n => n[0]).join('')}
+              </div>
+            )}
               </Avatar>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{vet.name}</h2>
-                <p className="text-gray-600">{vet.specialization.join(", ")}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge 
-                    className={availability.consultationType === "telemedicine" 
-                      ? "bg-green-100 text-green-800" 
-                      : "bg-orange-100 text-orange-800"
-                    }
-                  >
-                    {availability.consultationType === "telemedicine" ? "Telemedicine" : "In Clinic"}
-                  </Badge>
-                  <span className="text-sm text-gray-500">
-                    {availability.consultationDuration} minutes
-                  </span>
-                </div>
+            <h2 className="text-xl font-bold text-white">{vet.name}</h2>
+            <p className="text-gray-300">{vet.specialization.join(", ")}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge 
+                className={
+                  availability.consultationType === "telemedicine"
+                ? "bg-green-800 text-green-100"
+                : "bg-orange-800 text-orange-100"
+                }
+              >
+                {availability.consultationType === "telemedicine" ? "Telemedicine" : "In Clinic"}
+              </Badge>
+              <span className="text-sm text-gray-400">
+                {availability.consultationDuration} minutes
+              </span>
+            </div>
               </div>
             </div>
           </CardHeader>
         </Card>
 
         {/* Booking Form */}
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-gray-900">
+            <CardTitle className="text-xl font-bold text-white">
               Appointment Details
             </CardTitle>
           </CardHeader>
@@ -363,221 +364,223 @@ const BookAppointment: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Pet Selection */}
               <div className="space-y-2">
-                <Label htmlFor="petId" className="text-gray-700 font-medium">
-                  Select Pet *
-                </Label>
-                {loading.pets ? (
-                  <div className="w-full h-12 bg-gray-200 rounded-lg animate-pulse" />
-                ) : error.pets ? (
-                  <div className="p-4 border border-red-200 rounded-lg bg-red-50">
-                    <div className="flex items-center gap-2 text-red-600 text-sm">
-                      <AlertCircle className="w-4 h-4" />
-                      {error.pets}
+            <Label htmlFor="petId" className="text-gray-200 font-medium">
+              Select Pet *
+            </Label>
+            {loading.pets ? (
+              <div className="w-full h-12 bg-gray-700 rounded-lg animate-pulse" />
+            ) : error.pets ? (
+              <div className="p-4 border border-red-400 rounded-lg bg-red-900/30">
+                <div className="flex items-center gap-2 text-red-300 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {error.pets}
+                </div>
+              </div>
+            ) : pets.length === 0 ? (
+              <div className="text-center py-4 border border-gray-700 rounded-lg bg-gray-800">
+                <p className="text-gray-300 mb-2">No pets found</p>
+                <Button
+                  type="button"
+                  onClick={() => navigate("/add-pet")}
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-600 text-gray-200"
+                >
+                  Add Pet
+                </Button>
+              </div>
+            ) : (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setPetDropdownOpen(!petDropdownOpen)}
+                  className={`w-full p-3 border rounded-lg flex items-center justify-between bg-gray-800 hover:border-blue-500 transition-colors ${
+                errors.petId ? "border-red-400 bg-red-900/30" : "border-gray-700"
+                  }`}
+                >
+                  {formData.petId ? (
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-8 h-8">
+                    <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-700 flex items-center justify-center text-white font-medium">
+                      {pets.find((p) => p.id === formData.petId)?.name.charAt(0)}
+                    </div>
+                  </Avatar>
+                  <div className="text-left">
+                    <div className="font-medium text-white">
+                      {pets.find((p) => p.id === formData.petId)?.name}
+                    </div>
+                    <div className="text-sm text-gray-400">
+                      {pets.find((p) => p.id === formData.petId)?.species} • {calculateAge(pets.find((p) => p.id === formData.petId)?.dateOfBirth || "")} years
                     </div>
                   </div>
-                ) : pets.length === 0 ? (
-                  <div className="text-center py-4 border border-gray-200 rounded-lg">
-                    <p className="text-gray-600 mb-2">No pets found</p>
-                    <Button
-                      type="button"
-                      onClick={() => navigate("/add-pet")}
-                      variant="outline"
-                      size="sm"
-                    >
-                      Add Pet
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setPetDropdownOpen(!petDropdownOpen)}
-                      className={`w-full p-3 border rounded-lg flex items-center justify-between hover:border-blue-300 transition-colors ${
-                        errors.petId ? "border-red-300 bg-red-50" : "border-gray-300"
-                      }`}
-                    >
-                      {formData.petId ? (
-                        <div className="flex items-center gap-3">
-                          <Avatar className="w-8 h-8">
-                            <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
-                              {pets.find((p) => p.id === formData.petId)?.name.charAt(0)}
-                            </div>
-                          </Avatar>
-                          <div className="text-left">
-                            <div className="font-medium text-gray-900">
-                              {pets.find((p) => p.id === formData.petId)?.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {pets.find((p) => p.id === formData.petId)?.species} • {calculateAge(pets.find((p) => p.id === formData.petId)?.dateOfBirth || "")} years
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="text-gray-500">Select a pet</span>
-                      )}
-                      <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${petDropdownOpen ? "rotate-180" : ""}`} />
-                    </button>
+                </div>
+                  ) : (
+                <span className="text-gray-400">Select a pet</span>
+                  )}
+                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${petDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
 
-                    {petDropdownOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                        {pets.map((pet) => (
-                          <button
-                            key={pet.id}
-                            type="button"
-                            onClick={() => {
-                              handleInputChange("petId", pet.id);
-                              setPetDropdownOpen(false);
-                            }}
-                            className="w-full p-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                          >
-                            <Avatar className="w-8 h-8">
-                              <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium">
-                                {pet.name.charAt(0)}
-                              </div>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium text-gray-900">{pet.name}</div>
-                              <div className="text-sm text-gray-500">{pet.species} • {calculateAge(pet.dateOfBirth)} years</div>
-                            </div>
-                          </button>
-                        ))}
+                {petDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                {pets.map((pet) => (
+                  <button
+                    key={pet.id}
+                    type="button"
+                    onClick={() => {
+                      handleInputChange("petId", pet.id);
+                      setPetDropdownOpen(false);
+                    }}
+                    className="w-full p-3 text-left hover:bg-gray-800 flex items-center gap-3 transition-colors"
+                  >
+                    <Avatar className="w-8 h-8">
+                      <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-700 flex items-center justify-center text-white font-medium">
+                    {pet.name.charAt(0)}
                       </div>
-                    )}
+                    </Avatar>
+                    <div>
+                      <div className="font-medium text-white">{pet.name}</div>
+                      <div className="text-sm text-gray-400">{pet.species} • {calculateAge(pet.dateOfBirth)} years</div>
+                    </div>
+                  </button>
+                ))}
                   </div>
                 )}
-                {errors.petId && (
-                  <p className="text-red-600 text-sm">{errors.petId}</p>
-                )}
+              </div>
+            )}
+            {errors.petId && (
+              <p className="text-red-400 text-sm">{errors.petId}</p>
+            )}
               </div>
 
               {/* Appointment Date */}
               <div className="space-y-2">
-                <Label htmlFor="appointmentDate" className="text-gray-700 font-medium">
-                  Appointment Date *
-                </Label>
-                <Input
-                  id="appointmentDate"
-                  type="date"
-                  min={getMinDate()}
-                  value={formData.appointmentDate}
-                  onChange={(e) => handleInputChange("appointmentDate", e.target.value)}
-                  className={errors.appointmentDate ? "border-red-300 bg-red-50" : ""}
-                />
-                {errors.appointmentDate && (
-                  <p className="text-red-600 text-sm">{errors.appointmentDate}</p>
-                )}
+            <Label htmlFor="appointmentDate" className="text-gray-200 font-medium">
+              Appointment Date *
+            </Label>
+            <Input
+              id="appointmentDate"
+              type="date"
+              min={getMinDate()}
+              value={formData.appointmentDate}
+              onChange={(e) => handleInputChange("appointmentDate", e.target.value)}
+              className={`bg-gray-800 text-white ${errors.appointmentDate ? "border-red-400 bg-red-900/30" : "border-gray-700"}`}
+            />
+            {errors.appointmentDate && (
+              <p className="text-red-400 text-sm">{errors.appointmentDate}</p>
+            )}
               </div>
 
               {/* Start Time */}
               <div className="space-y-2">
-                <Label htmlFor="startTime" className="text-gray-700 font-medium">
-                  Start Time *
-                </Label>
-                <Input
-                  id="startTime"
-                  type="time"
-                  value={formData.startTime}
-                  onChange={(e) => handleInputChange("startTime", e.target.value)}
-                  className={errors.startTime ? "border-red-300 bg-red-50" : ""}
-                />
-                {selectedTime && (
-                  <p className="text-sm text-gray-600">
-                    Selected from available slot: {selectedTime}
-                  </p>
-                )}
-                {errors.startTime && (
-                  <p className="text-red-600 text-sm">{errors.startTime}</p>
-                )}
+            <Label htmlFor="startTime" className="text-gray-200 font-medium">
+              Start Time *
+            </Label>
+            <Input
+              id="startTime"
+              type="time"
+              value={formData.startTime}
+              onChange={(e) => handleInputChange("startTime", e.target.value)}
+              className={`bg-gray-800 text-white ${errors.startTime ? "border-red-400 bg-red-900/30" : "border-gray-700"}`}
+            />
+            {selectedTime && (
+              <p className="text-sm text-gray-400">
+                Selected from available slot: <span className="text-blue-300">{selectedTime}</span>
+              </p>
+            )}
+            {errors.startTime && (
+              <p className="text-red-400 text-sm">{errors.startTime}</p>
+            )}
               </div>
 
               {/* Consultation Type (Read-only) */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
-                  Consultation Type
-                </Label>
-                <div className="p-3 bg-gray-100 rounded-lg">
-                  <Badge 
-                    className={availability.consultationType === "telemedicine" 
-                      ? "bg-green-100 text-green-800" 
-                      : "bg-orange-100 text-orange-800"
-                    }
-                  >
-                    {availability.consultationType === "telemedicine" ? "Telemedicine" : "In Clinic"}
-                  </Badge>
-                </div>
+            <Label className="text-gray-200 font-medium">
+              Consultation Type
+            </Label>
+            <div className="p-3 bg-gray-800 rounded-lg">
+              <Badge 
+                className={availability.consultationType === "telemedicine" 
+                  ? "bg-green-900 text-green-200" 
+                  : "bg-orange-900 text-orange-200"
+                }
+              >
+                {availability.consultationType === "telemedicine" ? "Telemedicine" : "In Clinic"}
+              </Badge>
+            </div>
               </div>
 
               {/* Reason */}
               <div className="space-y-2">
-                <Label htmlFor="reason" className="text-gray-700 font-medium">
-                  Reason for Visit * (minimum 10 characters)
-                </Label>
-                <Textarea
-                  id="reason"
-                  value={formData.reason}
-                  onChange={(e) => handleInputChange("reason", e.target.value)}
-                  placeholder="Describe the reason for your visit..."
-                  className={errors.reason ? "border-red-300 bg-red-50" : ""}
-                  rows={3}
-                />
-                <div className="flex justify-between items-center">
-                  {errors.reason && (
-                    <p className="text-red-600 text-sm">{errors.reason}</p>
-                  )}
-                  <p className="text-sm text-gray-500 ml-auto">
-                    {formData.reason.length}/10 characters
-                  </p>
-                </div>
+            <Label htmlFor="reason" className="text-gray-200 font-medium">
+              Reason for Visit * (minimum 10 characters)
+            </Label>
+            <Textarea
+              id="reason"
+              value={formData.reason}
+              onChange={(e) => handleInputChange("reason", e.target.value)}
+              placeholder="Describe the reason for your visit..."
+              className={`bg-gray-800 text-white ${errors.reason ? "border-red-400 bg-red-900/30" : "border-gray-700"}`}
+              rows={3}
+            />
+            <div className="flex justify-between items-center">
+              {errors.reason && (
+                <p className="text-red-400 text-sm">{errors.reason}</p>
+              )}
+              <p className="text-sm text-gray-400 ml-auto">
+                {formData.reason.length}/10 characters
+              </p>
+            </div>
               </div>
 
               {/* Notes */}
               <div className="space-y-2">
-                <Label htmlFor="notes" className="text-gray-700 font-medium">
-                  Additional Notes (optional)
-                </Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => handleInputChange("notes", e.target.value)}
-                  placeholder="Any additional information or special requirements..."
-                  rows={2}
-                />
+            <Label htmlFor="notes" className="text-gray-200 font-medium">
+              Additional Notes (optional)
+            </Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
+              placeholder="Any additional information or special requirements..."
+              rows={2}
+              className="bg-gray-800 text-white border-gray-700"
+            />
               </div>
 
               {/* Error Message */}
               {error.booking && (
-                <div className="p-4 border border-red-200 rounded-lg bg-red-50">
-                  <div className="flex items-center gap-2 text-red-600">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{error.booking}</span>
-                  </div>
-                </div>
+            <div className="p-4 border border-red-400 rounded-lg bg-red-900/30">
+              <div className="flex items-center gap-2 text-red-300">
+                <AlertCircle className="w-4 h-4" />
+                <span>{error.booking}</span>
+              </div>
+            </div>
               )}
 
               {/* Submit Button */}
               <div className="flex gap-3">
-                <Button
-                  type="button"
-                  onClick={() => navigate(`/vets/${id}`)}
-                  variant="outline"
-                  className="flex-1 text-gray-700 border-gray-300"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={loading.booking}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                >
-                  {loading.booking ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Booking...
-                    </>
-                  ) : (
-                    "Book Appointment"
-                  )}
-                </Button>
+            <Button
+              type="button"
+              onClick={() => navigate(`/vets/${id}`)}
+              variant="outline"
+              className="flex-1 border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading.booking}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold"
+            >
+              {loading.booking ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Booking...
+                </>
+              ) : (
+                "Book Appointment"
+              )}
+            </Button>
               </div>
             </form>
           </CardContent>
