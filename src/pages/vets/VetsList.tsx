@@ -172,119 +172,119 @@ const VetsList: React.FC = () => {
             {/* Vets Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.isArray(vets) && vets.map((vet) => (
-                <Card 
-                  key={vet.id} 
-                  className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-[1.02]"
-                  onClick={() => navigate(`/vets/${vet.id}`)}
+                <Card
+                    key={vet.id}
+                    className="border-0 shadow-xl bg-gradient-to-br from-white via-gray-50 to-gray-100 hover:shadow-2xl transition-all duration-300 cursor-pointer hover:scale-[1.03] rounded-2xl overflow-hidden group"
+                    onClick={() => navigate(`/vets/${vet.id}`)}
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="w-16 h-16">
-                        {vet.profilePicture ? (
-                          <img 
-                            src={vet.profilePicture} 
-                            alt={vet.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                            {vet.name.split(' ').map(n => n[0]).join('')}
-                          </div>
-                        )}
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-gray-900 truncate">
-                          {vet.name}
-                        </h3>
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                            <span className="text-sm font-medium text-gray-700">
-                              {typeof vet.rating === 'string' ? parseFloat(vet.rating) || 0 : vet.rating}
-                            </span>
-                          </div>
-                          <span className="text-sm text-gray-500">
-                            ({vet.totalReviews} reviews)
-                          </span>
+                    <CardHeader className="pb-3">
+                        <div className="flex items-start gap-4">
+                            <Avatar className="w-16 h-16 ring-2 ring-blue-400 group-hover:ring-indigo-500 transition-all duration-200">
+                                {vet.profilePicture ? (
+                                    <img
+                                        src={vet.profilePicture}
+                                        alt={vet.name}
+                                        className="w-full h-full object-cover rounded-full"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg rounded-full">
+                                        {vet.name.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                )}
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-lg font-bold text-gray-900 truncate group-hover:text-indigo-700 transition-colors duration-200">
+                                    {vet.name}
+                                </h3>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="flex items-center gap-1">
+                                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                        <span className="text-sm font-semibold text-gray-700">
+                                            {typeof vet.rating === 'string' ? parseFloat(vet.rating) || 0 : vet.rating}
+                                        </span>
+                                    </div>
+                                    <span className="text-xs text-gray-500">
+                                        ({vet.totalReviews} reviews)
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs text-gray-600">
+                                    <Award className="w-3 h-3 text-indigo-500" />
+                                    <span>{vet.experience} yrs experience</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <Award className="w-3 h-3" />
-                          <span>{vet.experience} years experience</span>
+                    </CardHeader>
+
+                    <CardContent className="space-y-4 pt-0">
+                        {/* Specializations */}
+                        <div>
+                            <div className="flex flex-wrap gap-2">
+                                {vet.specialization.slice(0, 2).map((spec, index) => (
+                                    <Badge
+                                        key={index}
+                                        variant="secondary"
+                                        className="text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded-full"
+                                    >
+                                        {spec}
+                                    </Badge>
+                                ))}
+                                {vet.specialization.length > 2 && (
+                                    <Badge variant="secondary" className="text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 px-2 py-1 rounded-full">
+                                        +{vet.specialization.length - 2} more
+                                    </Badge>
+                                )}
+                            </div>
                         </div>
-                      </div>
-                    </div>
-                  </CardHeader>
 
-                  <CardContent className="space-y-4">
-                    {/* Specializations */}
-                    <div>
-                      <div className="flex flex-wrap gap-1">
-                        {vet.specialization.slice(0, 2).map((spec, index) => (
-                          <Badge 
-                            key={index}
-                            variant="secondary" 
-                            className="text-xs bg-blue-100 text-blue-800"
-                          >
-                            {spec}
-                          </Badge>
-                        ))}
-                        {vet.specialization.length > 2 && (
-                          <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
-                            +{vet.specialization.length - 2} more
-                          </Badge>
+                        {/* Bio */}
+                        {vet.bio && (
+                            <p className="text-sm text-gray-700 line-clamp-2 italic">
+                                {vet.bio}
+                            </p>
                         )}
-                      </div>
-                    </div>
 
-                    {/* Bio */}
-                    {vet.bio && (
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {vet.bio}
-                      </p>
-                    )}
+                        {/* Consultation Types */}
+                        <div className="flex gap-2 flex-wrap">
+                            {vet.consultationTypes?.includes("telemedicine") && (
+                                <Badge className="bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded-full flex items-center gap-1 font-medium">
+                                    <Video className="w-3 h-3 mr-1" />
+                                    Telemedicine
+                                </Badge>
+                            )}
+                            {vet.consultationTypes?.includes("in_clinic") && (
+                                <Badge className="bg-orange-50 text-orange-700 border border-orange-200 px-2 py-1 rounded-full flex items-center gap-1 font-medium">
+                                    <MapPin className="w-3 h-3 mr-1" />
+                                    In Clinic
+                                </Badge>
+                            )}
+                            {/* If no consultation types, show default */}
+                            {(!vet.consultationTypes || vet.consultationTypes.length === 0) && (
+                                <Badge className="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded-full flex items-center gap-1 font-medium">
+                                    <MapPin className="w-3 h-3 mr-1" />
+                                    Available for Consultation
+                                </Badge>
+                            )}
+                        </div>
 
-                    {/* Consultation Types */}
-                    <div className="flex gap-2">
-                      {vet.consultationTypes?.includes("telemedicine") && (
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                          <Video className="w-3 h-3 mr-1" />
-                          Telemedicine
-                        </Badge>
-                      )}
-                      {vet.consultationTypes?.includes("in_clinic") && (
-                        <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          In Clinic
-                        </Badge>
-                      )}
-                      {/* If no consultation types, show default */}
-                      {(!vet.consultationTypes || vet.consultationTypes.length === 0) && (
-                        <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          Available for Consultation
-                        </Badge>
-                      )}
-                    </div>
+                        {/* Verification Status */}
+                        {vet.isVerified && (
+                            <div className="flex items-center gap-1 text-xs text-green-600 font-semibold">
+                                <Award className="w-3 h-3" />
+                                <span>Verified Veterinarian</span>
+                            </div>
+                        )}
 
-                    {/* Verification Status */}
-                    {vet.isVerified && (
-                      <div className="flex items-center gap-1 text-sm text-green-600">
-                        <Award className="w-3 h-3" />
-                        <span>Verified Veterinarian</span>
-                      </div>
-                    )}
-
-                    {/* Book Button */}
-                    <Button 
-                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/vets/${vet.id}`);
-                      }}
-                    >
-                      View Availability
-                    </Button>
-                  </CardContent>
+                        {/* Book Button */}
+                        <Button
+                            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-2 rounded-xl shadow-md mt-2 transition-all duration-200"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/vets/${vet.id}`);
+                            }}
+                        >
+                            View Availability
+                        </Button>
+                    </CardContent>
                 </Card>
               ))}
             </div>
