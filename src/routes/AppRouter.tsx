@@ -13,6 +13,10 @@ import AddPetVaccination from '@/pages/home/AddPetVaccination';
 import PackageDetails from '@/pages/packages/PackageDetails';
 import MyPackages from '@/pages/packages/MyPackages';
 import InventoryDetails from '@/pages/inventory/InventoryDetails';
+import VetsList from '@/pages/vets/VetsList';
+import VetAvailability from '@/pages/vets/VetAvailability';
+import BookAppointment from '@/pages/vets/BookAppointment';
+import MyAppointments from '@/pages/vets/MyAppointments';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -44,6 +48,12 @@ const AppRouter = () => (
 
         {/* Inventory Details & Payment */}
         <Route path="/inventory/:id" element={<InventoryDetails />} />
+
+        {/* Vet Appointments */}
+        <Route path="/vets" element={<VetsList />} />
+        <Route path="/vets/:id" element={<VetAvailability />} />
+        <Route path="/vets/:id/book" element={<BookAppointment />} />
+        <Route path="/my-appointments" element={<MyAppointments />} />
 
         {/* Onboarding Flow */}
         <Route path="/onboarding/add-pet" element={<AddPet onboarding />} />

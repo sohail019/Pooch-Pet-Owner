@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import UserDetailsCard from "@/components/user/UserDetailsCard";
 import PetSlider from "@/components/pets/PetSlider";
 import PackagesList from "@/components/packages/PackagesList";
 import InventoriesList from "@/components/inventories/InventoriesList";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Stethoscope, Calendar, Clock, ArrowRight } from "lucide-react";
 import { setUser, clearUser } from "@/redux/slices/userSlice";
 import { setPets, clearPets } from "@/redux/slices/petsSlice";
 import { setPackages, clearPackages } from "@/redux/slices/packagesSlice";
@@ -21,6 +24,7 @@ import { handleApiError } from "@/types/errors";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Redux state
   const user = useSelector((state: RootState) => state.user.user);
@@ -171,8 +175,8 @@ const Home: React.FC = () => {
       {/* Packages Section */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold">Packages</h2>
-        <Link 
-          to="/my-packages" 
+        <Link
+          to="/my-packages"
           className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
         >
           View All →
@@ -200,6 +204,68 @@ const Home: React.FC = () => {
       ) : (
         <PackagesList packages={packages} />
       )}
+
+      {/* Find Vets Section */}
+      <Card className="border border-gray-300 rounded-xl shadow hover:shadow-md transition-all duration-200 bg-gradient-to-br mb-8">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
+              <Stethoscope className="w-5 h-5 text-blue-600" />
+            </div>
+            Find Veterinarians
+          </CardTitle>
+          <p className="text-gray-400">
+            Connect with certified veterinarians for your pet's health needs
+          </p>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-green-50 via-green-100 to-green-200 rounded-xl shadow hover:shadow-lg transition-all duration-200 border border-green-100">
+              <div className="flex items-center justify-center w-12 h-12 bg-green-200 rounded-full">
+              <Calendar className="w-6 h-6 text-green-700" />
+              </div>
+              <div>
+              <p className="font-semibold text-green-900 text-lg">Book Appointments</p>
+              <p className="text-sm text-green-700">Schedule consultations easily</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 rounded-xl shadow hover:shadow-lg transition-all duration-200 border border-blue-100">
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-200 rounded-full">
+              <Clock className="w-6 h-6 text-blue-700" />
+              </div>
+              <div>
+              <p className="font-semibold text-blue-900 text-lg">Flexible Timing</p>
+              <p className="text-sm text-blue-700">Choose convenient time slots</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-purple-50 via-purple-100 to-purple-200 rounded-xl shadow hover:shadow-lg transition-all duration-200 border border-purple-100">
+              <div className="flex items-center justify-center w-12 h-12 bg-purple-200 rounded-full">
+              <Stethoscope className="w-6 h-6 text-purple-700" />
+              </div>
+              <div>
+              <p className="font-semibold text-purple-900 text-lg">Expert Care</p>
+              <p className="text-sm text-purple-700">Certified professionals</p>
+              </div>
+            </div>
+            </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => navigate("/vets")}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold shadow-md px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-150"
+            >
+              Find Vets
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={() => navigate("/my-appointments")}
+              variant="outline"
+              className="border border-blue-500 text-blue-600 font-semibold px-3 py-2 rounded-lg hover:bg-blue-50 hover:border-blue-600 transition-all duration-150 "
+            >
+              My Appointments
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Inventories Section */}
       {loading.inventories ? (

@@ -36,6 +36,12 @@ const Header: React.FC = () => {
       </a>
       {/* Desktop Menu */}
       <nav className="hidden md:flex gap-6 items-center ">
+      <button onClick={() => handleNav("/vets")} className="hover:underline">
+        Find Vets
+      </button>
+      <button onClick={() => handleNav("/my-appointments")} className="hover:underline">
+        My Appointments
+      </button>
       <button onClick={() => handleNav("/my-packages")} className="hover:underline">
         My Packages
       </button>
@@ -57,6 +63,18 @@ const Header: React.FC = () => {
       {/* Mobile Menu */}
       {open && (
       <div className="absolute top-full right-4 mt-3 w-56 bg-white  rounded-xl shadow-2xl flex flex-col z-50 md:hidden border border-gray-200 animate-fade-in">
+        <button
+        onClick={() => handleNav("/vets")}
+        className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
+        >
+        Find Vets
+        </button>
+        <button
+        onClick={() => handleNav("/my-appointments")}
+        className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
+        >
+        My Appointments
+        </button>
         <button
         onClick={() => handleNav("/my-packages")}
         className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"

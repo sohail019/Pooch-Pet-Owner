@@ -1,0 +1,354 @@
+VET USER JOURNEY - API SAMPLES
+================================
+
+1. GET ALL VETS
+===============
+
+Request:
+GET /api/vets
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Dr. Sarah Johnson",
+      "email": "sarah.johnson@vetclinic.com",
+      "phone": "9876543210",
+      "specialization": ["General Practice", "Surgery"],
+      "experience": 8,
+      "licenseNumber": "VET123456",
+      "profilePicture": "https://example.com/sarah.jpg",
+      "bio": "Experienced veterinarian with 8 years in practice",
+      "consultationTypes": ["telemedicine", "in_clinic"],
+      "isVerified": true,
+      "isActive": true,
+      "kycStatus": "approved",
+      "rating": 4.8,
+      "totalReviews": 45,
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "name": "Dr. Michael Chen",
+      "email": "michael.chen@vetclinic.com",
+      "phone": "9876543211",
+      "specialization": ["Dermatology", "Allergy"],
+      "experience": 12,
+      "licenseNumber": "VET789012",
+      "profilePicture": "https://example.com/michael.jpg",
+      "bio": "Specialized in skin conditions and allergies",
+      "consultationTypes": ["telemedicine"],
+      "isVerified": true,
+      "isActive": true,
+      "kycStatus": "approved",
+      "rating": 4.9,
+      "totalReviews": 67,
+      "createdAt": "2024-01-15T11:00:00.000Z",
+      "updatedAt": "2024-01-15T11:00:00.000Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "name": "Dr. Emily Rodriguez",
+      "email": "emily.rodriguez@vetclinic.com",
+      "phone": "9876543212",
+      "specialization": ["Emergency Medicine", "Surgery"],
+      "experience": 15,
+      "licenseNumber": "VET345678",
+      "profilePicture": "https://example.com/emily.jpg",
+      "bio": "Emergency and surgical specialist",
+      "consultationTypes": ["in_clinic"],
+      "isVerified": true,
+      "isActive": true,
+      "kycStatus": "approved",
+      "rating": 4.7,
+      "totalReviews": 89,
+      "createdAt": "2024-01-15T12:00:00.000Z",
+      "updatedAt": "2024-01-15T12:00:00.000Z"
+    }
+  ]
+}
+
+Error Response (Invalid Token):
+{
+  "success": false,
+  "message": "Invalid token"
+}
+
+Error Response (Unauthorized):
+{
+  "success": false,
+  "message": "Access denied"
+}
+
+2. GET VET AVAILABILITY
+=======================
+
+Request:
+GET /api/vets/550e8400-e29b-41d4-a716-446655440001/availability
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440004",
+      "vetId": "550e8400-e29b-41d4-a716-446655440001",
+      "dayOfWeek": "monday",
+      "startTime": "09:00",
+      "endTime": "17:00",
+      "consultationType": "telemedicine",
+      "isAvailable": true,
+      "maxBookings": 8,
+      "consultationDuration": 30,
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440005",
+      "vetId": "550e8400-e29b-41d4-a716-446655440001",
+      "dayOfWeek": "monday",
+      "startTime": "09:00",
+      "endTime": "17:00",
+      "consultationType": "in_clinic",
+      "isAvailable": true,
+      "maxBookings": 6,
+      "consultationDuration": 45,
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440006",
+      "vetId": "550e8400-e29b-41d4-a716-446655440001",
+      "dayOfWeek": "tuesday",
+      "startTime": "10:00",
+      "endTime": "16:00",
+      "consultationType": "telemedicine",
+      "isAvailable": true,
+      "maxBookings": 6,
+      "consultationDuration": 30,
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440007",
+      "vetId": "550e8400-e29b-41d4-a716-446655440001",
+      "dayOfWeek": "wednesday",
+      "startTime": "08:00",
+      "endTime": "18:00",
+      "consultationType": "in_clinic",
+      "isAvailable": true,
+      "maxBookings": 10,
+      "consultationDuration": 45,
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    }
+  ]
+}
+
+Error Response (Vet Not Found):
+{
+  "success": false,
+  "message": "Vet not found"
+}
+
+Error Response (Invalid Token):
+{
+  "success": false,
+  "message": "Invalid token"
+}
+
+3. BOOK APPOINTMENT
+==================
+
+Request:
+POST /api/vets/550e8400-e29b-41d4-a716-446655440001/book
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+{
+  "petId": "550e8400-e29b-41d4-a716-446655440008",
+  "appointmentDate": "2024-01-22",
+  "startTime": "14:00",
+  "consultationType": "telemedicine",
+  "reason": "Annual checkup and vaccination",
+  "notes": "Pet has mild allergies to certain foods"
+}
+
+Response:
+{
+  "success": true,
+  "message": "Appointment booked successfully",
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440009",
+    "vetId": "550e8400-e29b-41d4-a716-446655440001",
+    "userId": "550e8400-e29b-41d4-a716-446655440010",
+    "petId": "550e8400-e29b-41d4-a716-446655440008",
+    "appointmentDate": "2024-01-22T00:00:00.000Z",
+    "startTime": "14:00",
+    "endTime": "14:30",
+    "consultationType": "telemedicine",
+    "reason": "Annual checkup and vaccination",
+    "notes": "Pet has mild allergies to certain foods",
+    "status": "pending",
+    "createdAt": "2024-01-15T14:00:00.000Z",
+    "updatedAt": "2024-01-15T14:00:00.000Z",
+    "user": {
+      "id": "550e8400-e29b-41d4-a716-446655440010",
+      "name": "John Doe",
+      "email": "john.doe@email.com",
+      "phone": "9876543210"
+    },
+    "vet": {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Dr. Sarah Johnson",
+      "email": "sarah.johnson@vetclinic.com",
+      "phone": "9876543210",
+      "specialization": ["General Practice", "Surgery"]
+    },
+    "pet": {
+      "id": "550e8400-e29b-41d4-a716-446655440008",
+      "name": "Buddy",
+      "species": "dog",
+      "breed": "Golden Retriever",
+      "dateOfBirth": "2021-03-15T00:00:00.000Z",
+      "gender": "male",
+      "weight": 25.5,
+      "color": "golden"
+    }
+  }
+}
+
+Error Responses:
+
+1. Vet Not Found:
+{
+  "success": false,
+  "message": "Vet not found"
+}
+
+2. Pet Not Found:
+{
+  "success": false,
+  "message": "Pet not found"
+}
+
+3. Vet Not Available for Consultation Type:
+{
+  "success": false,
+  "message": "Vet does not offer in_clinic consultations"
+}
+
+4. Time Slot Not Available:
+{
+  "success": false,
+  "message": "Time slot not available"
+}
+
+5. Validation Error:
+{
+  "success": false,
+  "message": "Validation error",
+  "errors": [
+    {
+      "code": "invalid_string",
+      "minimum": 10,
+      "type": "string",
+      "inclusive": true,
+      "exact": false,
+      "message": "Reason must be at least 10 characters",
+      "path": ["reason"]
+    }
+  ]
+}
+
+6. Invalid Date Format:
+{
+  "success": false,
+  "message": "Validation error",
+  "errors": [
+    {
+      "code": "invalid_string",
+      "validation": "regex",
+      "inclusive": true,
+      "exact": false,
+      "message": "Invalid date format (YYYY-MM-DD)",
+      "path": ["appointmentDate"]
+    }
+  ]
+}
+
+7. Invalid Time Format:
+{
+  "success": false,
+  "message": "Validation error",
+  "errors": [
+    {
+      "code": "invalid_string",
+      "validation": "regex",
+      "inclusive": true,
+      "exact": false,
+      "message": "Invalid start time",
+      "path": ["startTime"]
+    }
+  ]
+}
+
+8. Invalid Consultation Type:
+{
+  "success": false,
+  "message": "Validation error",
+  "errors": [
+    {
+      "code": "invalid_enum_value",
+      "options": ["telemedicine", "in_clinic"],
+      "path": ["consultationType"],
+      "message": "Invalid enum value. Expected 'telemedicine' | 'in_clinic', received 'video'"
+    }
+  ]
+}
+
+COMPLETE USER JOURNEY EXAMPLE
+============================
+
+Step 1: Get All Vets
+--------------------
+GET /api/vets
+Authorization: Bearer <user_token>
+
+Step 2: Get Specific Vet's Availability
+--------------------------------------
+GET /api/vets/550e8400-e29b-41d4-a716-446655440001/availability
+Authorization: Bearer <user_token>
+
+Step 3: Book Appointment
+------------------------
+POST /api/vets/550e8400-e29b-41d4-a716-446655440001/book
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+{
+  "petId": "550e8400-e29b-41d4-a716-446655440008",
+  "appointmentDate": "2024-01-22",
+  "startTime": "14:00",
+  "consultationType": "telemedicine",
+  "reason": "Annual checkup and vaccination",
+  "notes": "Pet has mild allergies to certain foods"
+}
+
+NOTES:
+======
+- All requests require valid user authentication token
+- Dates should be in YYYY-MM-DD format
+- Times should be in HH:MM format (24-hour)
+- Consultation types: "telemedicine" or "in_clinic"
+- Reason must be at least 10 characters
+- Notes are optional
+- End time is auto-calculated based on consultation duration
+- WhatsApp notification is automatically sent to the vet upon successful booking 
