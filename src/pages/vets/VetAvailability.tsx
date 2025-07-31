@@ -241,7 +241,7 @@ const VetAvailabilityScreen: React.FC = () => {
         ) : vet ? (
           <>
             {/* Vet Profile Card */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+            <Card className="border-2 border-white/50 shadow-lg bg-gradient-to-br ">
               <CardHeader>
                 <div className="flex items-start gap-6">
                   <Avatar className="w-20 h-20">
@@ -258,14 +258,14 @@ const VetAvailabilityScreen: React.FC = () => {
                     )}
                   </Avatar>
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{vet.name}</h2>
+                    <h2 className="text-2xl font-bold text-white mb-2">{vet.name}</h2>
                     <div className="flex items-center gap-4 mb-3">
                       <div className="flex items-center gap-1">
                         <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                        <span className="font-medium text-gray-700">{vet.rating}</span>
-                        <span className="text-gray-500">({vet.totalReviews} reviews)</span>
+                        <span className="font-medium text-gray-300">{vet.rating}</span>
+                        <span className="text-gray-200">({vet.totalReviews} reviews)</span>
                       </div>
-                      <div className="flex items-center gap-1 text-gray-600">
+                      <div className="flex items-center gap-1 text-gray-300">
                         <Award className="w-4 h-4" />
                         <span>{vet.experience} years experience</span>
                       </div>
@@ -286,7 +286,7 @@ const VetAvailabilityScreen: React.FC = () => {
 
                     {/* Bio */}
                     {vet.bio && (
-                      <p className="text-gray-600 mb-3">{vet.bio}</p>
+                      <p className="text-gray-300 mb-3">{vet.bio}</p>
                     )}
 
                     {/* Consultation Types */}
@@ -327,51 +327,69 @@ const VetAvailabilityScreen: React.FC = () => {
             </Card>
 
             {/* Consultation Type Filter */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+            <Card className="border-2 border-white/50 shadow-lg bg-gradient-to-br ">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-gray-900">
-                  Select Consultation Type
+                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Stethoscope className="w-5 h-5 text-blue-500" />
+                  Consultation Type
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-4 justify-center py-2">
                   <Button
                     variant={selectedConsultationType === "all" ? "default" : "outline"}
                     onClick={() => setSelectedConsultationType("all")}
-                    className={selectedConsultationType === "all" ? 
-                      "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700" : 
-                      "text-gray-700 border-gray-300 hover:bg-gray-50"
-                    }
+                    className={`rounded-full px-6 py-2 font-semibold transition-all duration-200 shadow-sm ${
+                      selectedConsultationType === "all"
+                        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 border-0 scale-105"
+                        : "text-gray-700 border-gray-300 hover:bg-gray-100 bg-white"
+                    }`}
                   >
+                    <Stethoscope
+                      className={`w-4 h-4 mr-2 ${
+                        selectedConsultationType === "all" ? "text-white" : "text-blue-500"
+                      }`}
+                    />
                     All Types
                   </Button>
-                  {/* Show telemedicine button if consultationTypes includes it OR if availability has telemedicine */}
-                  {(vet.consultationTypes?.includes("telemedicine") || 
+                  {(vet.consultationTypes?.includes("telemedicine") ||
                     (!vet.consultationTypes && availability.some(a => a.consultationType === "telemedicine"))) && (
                     <Button
                       variant={selectedConsultationType === "telemedicine" ? "default" : "outline"}
                       onClick={() => setSelectedConsultationType("telemedicine")}
-                      className={selectedConsultationType === "telemedicine" ? 
-                        "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700" : 
-                        "text-gray-700 border-gray-300 hover:bg-gray-50"
-                      }
+                      className={`rounded-full px-6 py-2 font-semibold transition-all duration-200 shadow-sm ${
+                        selectedConsultationType === "telemedicine"
+                          ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 border-0 scale-105"
+                          : "text-gray-700 border-gray-300 hover:bg-gray-100 bg-white"
+                      }`}
                     >
-                      <Video className="w-4 h-4 mr-2" />
+                      <Video
+                        className={`w-4 h-4 mr-2 ${
+                          selectedConsultationType === "telemedicine" ? "text-white" : "text-green-600"
+                        }`}
+                      />
                       Telemedicine
                     </Button>
-                  )}
-                  {/* Show in_clinic button if consultationTypes includes it OR if availability has in_clinic */}
-                  {(vet.consultationTypes?.includes("in_clinic") || 
+                  )
+                  }
+                  {(vet.consultationTypes?.includes("in_clinic") ||
                     (!vet.consultationTypes && availability.some(a => a.consultationType === "in_clinic"))) && (
                     <Button
                       variant={selectedConsultationType === "in_clinic" ? "default" : "outline"}
                       onClick={() => setSelectedConsultationType("in_clinic")}
-                      className={selectedConsultationType === "in_clinic" ? 
-                        "bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700" : 
-                        "text-gray-700 border-gray-300 hover:bg-gray-50"
-                      }
+                      className={`rounded-full px-6 py-2 font-semibold transition-all duration-200 shadow-sm ${
+                        selectedConsultationType === "in_clinic"
+                          ? "bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 border-0 scale-105"
+                          : "text-gray-700 border-gray-300 hover:bg-gray-100 bg-white"
+                      }`}
                     >
-                      <MapPin className="w-4 h-4 mr-2" />
+                      <MapPin
+                        className={`w-4 h-4 mr-2 ${
+                          selectedConsultationType === "in_clinic"
+                            ? "text-white"
+                            : "text-orange-500"
+                        }`}
+                      />
                       In Clinic
                     </Button>
                   )}
@@ -380,111 +398,117 @@ const VetAvailabilityScreen: React.FC = () => {
             </Card>
 
             {/* Availability Schedule */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+            <Card className="border-2 border-white/50 shadow-lg bg-gradient-to-br ">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
+                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-green-500" />
                   Available Time Slots
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {loading.availability ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-                      <div key={i} className="space-y-2">
-                        <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
-                        <div className="grid grid-cols-2 gap-2">
-                          {[1, 2, 3, 4].map((j) => (
-                            <div key={j} className="w-full h-8 bg-gray-200 rounded animate-pulse" />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...Array(7)].map((_, i) => (
+                            <Card key={i} className="border-0 shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse">
+                                <CardHeader className="pb-3">
+                                    <div className="w-32 h-6 bg-gray-300 rounded mb-2" />
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {[...Array(4)].map((_, j) => (
+                                            <div key={j} className="w-full h-8 bg-gray-300 rounded" />
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
                 ) : error.availability ? (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-red-100 to-pink-100 rounded-full flex items-center justify-center">
-                      <Clock className="w-8 h-8 text-red-600" />
+                    <div className="flex flex-col items-center justify-center py-12">
+                        <div className="w-20 h-20 mb-4 bg-gradient-to-r from-red-200 to-pink-300 rounded-full flex items-center justify-center shadow-lg">
+                            <Clock className="w-10 h-10 text-red-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-red-700 mb-2">Unable to Load Availability</h3>
+                        <p className="text-gray-500 mb-4">{error.availability}</p>
+                        <Button onClick={fetchAvailability} className="bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold px-6 py-2 rounded-full shadow-md hover:from-red-600 hover:to-pink-600">
+                            Try Again
+                        </Button>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Unable to Load Availability
-                    </h3>
-                    <p className="text-gray-600 mb-4">{error.availability}</p>
-                    <Button onClick={fetchAvailability}>Try Again</Button>
-                  </div>
                 ) : filteredAvailability.length === 0 ? (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                      <Clock className="w-8 h-8 text-gray-600" />
+                    <div className="flex flex-col items-center justify-center py-12">
+                        <div className="w-20 h-20 mb-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center shadow-lg">
+                            <Clock className="w-10 h-10 text-gray-600" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-700 mb-2">No Availability Found</h3>
+                        <p className="text-gray-500">
+                            {selectedConsultationType === "all"
+                                ? "This vet has no available time slots."
+                                : `This vet has no available ${selectedConsultationType.replace('_', ' ')} slots.`}
+                        </p>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      No Availability Found
-                    </h3>
-                    <p className="text-gray-600">
-                      {selectedConsultationType === "all" 
-                        ? "This vet has no available time slots."
-                        : `This vet has no available ${selectedConsultationType.replace('_', ' ')} slots.`
-                      }
-                    </p>
-                  </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {daysOfWeek.map((day) => {
-                      const dayAvailability = filteredAvailability.filter(item => item.dayOfWeek === day);
-                      
-                      if (dayAvailability.length === 0) return null;
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {daysOfWeek.map((day) => {
+                            const dayAvailability = filteredAvailability.filter(item => item.dayOfWeek === day);
 
-                      return (
-                        <Card key={day} className="border border-gray-200 shadow-sm">
-                          <CardHeader className="pb-3">
-                            <h3 className="font-semibold text-gray-900">
-                              {dayLabels[day as keyof typeof dayLabels]}
-                            </h3>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            {dayAvailability.map((avail) => (
-                              <div key={avail.id} className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <Badge 
-                                    className={avail.consultationType === "telemedicine" 
-                                      ? "bg-green-100 text-green-800" 
-                                      : "bg-orange-100 text-orange-800"
-                                    }
-                                  >
-                                    {avail.consultationType === "telemedicine" ? (
-                                      <Video className="w-3 h-3 mr-1" />
-                                    ) : (
-                                      <MapPin className="w-3 h-3 mr-1" />
-                                    )}
-                                    {avail.consultationType === "telemedicine" ? "Telemedicine" : "In Clinic"}
-                                  </Badge>
-                                  <span className="text-xs text-gray-500">
-                                    {avail.consultationDuration} min
-                                  </span>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-2">
-                                  {generateTimeSlots(avail).map((timeSlot) => (
-                                    <Button
-                                      key={timeSlot}
-                                      variant="outline"
-                                      size="sm"
-                                      className="text-xs hover:bg-blue-50 hover:border-blue-300"
-                                      onClick={() => handleBookAppointment(avail, timeSlot)}
-                                    >
-                                      {timeSlot}
-                                    </Button>
-                                  ))}
-                                </div>
-                              </div>
-                            ))}
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
+                            if (dayAvailability.length === 0) return null;
+
+                            return (
+                                <Card key={day} className="border-0 shadow-lg bg-gradient-to-br from-gray-700  hover:scale-[1.02] transition-transform duration-200">
+                                    <CardHeader className="pb-3">
+                                        <h3 className="font-semibold text-lg text-blue-700 flex items-center gap-2">
+                                            <Calendar className="w-5 h-5 text-green-500" />
+                                            {dayLabels[day as keyof typeof dayLabels]}
+                                        </h3>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        {dayAvailability.map((avail) => (
+                                            <div key={avail.id} className="space-y-2">
+                                                <>
+                                                    <div className="flex items-center justify-between">
+                                                        <Badge
+                                                            className={`px-3 py-1 rounded-full font-medium shadow-sm ${
+                                                                avail.consultationType === "telemedicine"
+                                                                    ? "bg-gradient-to-r from-green-200 to-emerald-200 text-green-900"
+                                                                    : "bg-gradient-to-r from-orange-200 to-red-200 text-orange-900"
+                                                            }`}
+                                                        >
+                                                            {avail.consultationType === "telemedicine" ? (
+                                                                <Video className="w-4 h-4 mr-1" />
+                                                            ) : (
+                                                                <MapPin className="w-4 h-4 mr-1" />
+                                                            )}
+                                                            {avail.consultationType === "telemedicine" ? "Telemedicine" : "In Clinic"}
+                                                        </Badge>
+                                                        <span className="text-xs text-gray-500 font-semibold">
+                                                            {avail.consultationDuration} min
+                                                        </span>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        {generateTimeSlots(avail).map((timeSlot) => (
+                                                            <Button
+                                                                key={timeSlot}
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="text-xs font-semibold rounded-full border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 hover:bg-blue-100 hover:border-blue-400 transition-all duration-150 shadow-sm"
+                                                                onClick={() => handleBookAppointment(avail, timeSlot)}
+                                                            >
+                                                                <Clock className="w-3 h-3 mr-1 text-blue-400" />
+                                                                {timeSlot}
+                                                            </Button>
+                                                        ))}
+                                                    </div>
+                                                </>
+                                            </div>
+                                        ))}
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                )
+              }
+            </CardContent>
             </Card>
           </>
         ) : null}
