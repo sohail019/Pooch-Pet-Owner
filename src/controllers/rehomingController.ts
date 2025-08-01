@@ -85,6 +85,75 @@ export interface CreateAdoptionRequestPayload {
 
 export interface UpdateAdoptionRequestStatusPayload {
   status: "accepted" | "rejected";
+  message?: string;
+}
+
+/**
+ * Payment and Escrow interfaces
+ */
+export interface PaymentProcessRequest {
+  paymentMethod: "stripe";
+  gatewayResponse: {
+    paymentIntentId: string;
+    status: string;
+  };
+}
+
+export interface RehomingTransaction {
+  id: string;
+  amount: number;
+  platformFee: number;
+  netAmount: number;
+  status: "pending" | "completed" | "failed";
+  escrowStatus: "held" | "released" | "disputed";
+  disputeStatus?: "none" | "open" | "resolved";
+  createdAt: string;
+  adoptionRequest: {
+    id: string;
+    pet: {
+      id: string;
+      name: string;
+    };
+    adopter: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  };
+}
+
+/**
+ * Transfer Confirmation interfaces
+ */
+export interface PendingTransfer {
+  id: string;
+  status: "pet_transfer_pending";
+  adopterConfirmation: boolean;
+  petOwnerConfirmation: boolean;
+  pet: {
+    id: string;
+    name: string;
+    species: string;
+  };
+  adopter: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export interface TransferConfirmationRequest {
+  adoptionRequestId: string;
+  confirmationMessage: string;
+}
+
+/**
+ * Dispute interfaces
+ */
+export interface DisputeRequest {
+  transactionId: string;
+  reason: string;
+  evidence: string;
 }
 
 /**
@@ -347,6 +416,259 @@ export const getAdoptionStatusDisplay = (status: AdoptionRequest["status"]) => {
       return {
         label: "Unknown",
         color: "bg-gray-700 text-gray-300"
+      };
+  }
+};
+
+/**
+ * PAYMENT PROCESSING FUNCTIONS
+ */
+
+/**
+ * Process payment for adoption request with escrow
+ * @param adoptionRequestId - Adoption request ID
+ * @param payload - Payment details
+ * @returns Promise<RehomingTransaction>
+ */
+export const processAdoptionPayment = async (
+  adoptionRequestId: string, 
+  payload: PaymentProcessRequest
+): Promise<RehomingTransaction> => {
+  try {
+    console.log(`💳 Processing payment for adoption request ${adoptionRequestId}:`, payload);
+    
+    const response = await axiosInstance.post(`/payment/rehoming-transactions/process-payment/${adoptionRequestId}`, payload);
+    console.log("✅ Payment processed successfully:", response.data);
+    
+    toast.success("Payment processed successfully! Funds are held in escrow.");
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to process payment:", error);
+    const errorMessage = handleApiError(error);
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Get all transactions for the current pet owner
+ * @returns Promise<RehomingTransaction[]>
+ */
+export const getMyTransactions = async (): Promise<RehomingTransaction[]> => {
+  try {
+    console.log("💳 Fetching my transactions...");
+    
+    const response = await axiosInstance.get('/payment/rehoming/my-transactions');
+    console.log("✅ My transactions fetched successfully:", response.data);
+    
+    // The API returns { data: { transactions: [], total, page, limit, totalPages } }
+    return response.data.data.transactions || [];
+  } catch (error: unknown) {
+    console.error("❌ Failed to fetch my transactions:", error);
+    const errorMessage = handleApiError(error);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Get specific transaction details
+ * @param transactionId - Transaction ID
+ * @returns Promise<RehomingTransaction>
+ */
+export const getTransactionById = async (transactionId: string): Promise<RehomingTransaction> => {
+  try {
+    console.log(`💳 Fetching transaction details for ID: ${transactionId}`);
+    
+    const response = await axiosInstance.get(`/payment/rehoming-transactions/${transactionId}`);
+    console.log("✅ Transaction details fetched:", response.data);
+    
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to fetch transaction details:", error);
+    const errorMessage = handleApiError(error);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * TRANSFER CONFIRMATION FUNCTIONS
+ */
+
+/**
+ * Get pending transfer confirmations
+ * @returns Promise<PendingTransfer[]>
+ */
+export const getPendingTransfers = async (): Promise<PendingTransfer[]> => {
+  try {
+    console.log("🔄 Fetching pending transfers...");
+    
+    const response = await axiosInstance.get('/rehoming/transfer/pending');
+    console.log("✅ Pending transfers fetched successfully:", response.data);
+    
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to fetch pending transfers:", error);
+    const errorMessage = handleApiError(error);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Confirm pet transfer by pet owner
+ * @param payload - Transfer confirmation details
+ * @returns Promise<PendingTransfer>
+ */
+export const confirmTransferPetOwner = async (payload: TransferConfirmationRequest): Promise<PendingTransfer> => {
+  try {
+    console.log("🔄 Confirming transfer as pet owner:", payload);
+    
+    const response = await axiosInstance.post('/rehoming/transfer/confirm-pet-owner', payload);
+    console.log("✅ Transfer confirmed by pet owner:", response.data);
+    
+    toast.success("Pet transfer confirmed! Waiting for adopter confirmation.");
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to confirm transfer as pet owner:", error);
+    const errorMessage = handleApiError(error);
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Confirm pet transfer by adopter
+ * @param payload - Transfer confirmation details
+ * @returns Promise<PendingTransfer>
+ */
+export const confirmTransferAdopter = async (payload: TransferConfirmationRequest): Promise<PendingTransfer> => {
+  try {
+    console.log("🔄 Confirming transfer as adopter:", payload);
+    
+    const response = await axiosInstance.post('/rehoming/transfer/confirm-adopter', payload);
+    console.log("✅ Transfer confirmed by adopter:", response.data);
+    
+    toast.success("Pet transfer confirmed! Funds will be released from escrow.");
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to confirm transfer as adopter:", error);
+    const errorMessage = handleApiError(error);
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * DISPUTE MANAGEMENT FUNCTIONS
+ */
+
+/**
+ * Open a dispute for a transaction
+ * @param payload - Dispute details
+ * @returns Promise<RehomingTransaction>
+ */
+export const openDispute = async (payload: DisputeRequest): Promise<RehomingTransaction> => {
+  try {
+    console.log("⚠️ Opening dispute:", payload);
+    
+    const response = await axiosInstance.post('/payment/escrow/dispute', payload);
+    console.log("✅ Dispute opened successfully:", response.data);
+    
+    toast.success("Dispute opened successfully. Our team will review your case.");
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to open dispute:", error);
+    const errorMessage = handleApiError(error);
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Helper function to get transaction status display
+ * @param status - Transaction status
+ * @returns Display configuration for badges
+ */
+export const getTransactionStatusDisplay = (status: RehomingTransaction["status"]) => {
+  switch (status) {
+    case "pending":
+      return {
+        label: "Pending",
+        color: "bg-yellow-900 text-yellow-300"
+      };
+    case "completed":
+      return {
+        label: "Completed",
+        color: "bg-green-900 text-green-300"
+      };
+    case "failed":
+      return {
+        label: "Failed",
+        color: "bg-red-900 text-red-300"
+      };
+    default:
+      return {
+        label: "Unknown",
+        color: "bg-gray-700 text-gray-300"
+      };
+  }
+};
+
+/**
+ * Helper function to get escrow status display
+ * @param status - Escrow status
+ * @returns Display configuration for badges
+ */
+export const getEscrowStatusDisplay = (status: RehomingTransaction["escrowStatus"]) => {
+  switch (status) {
+    case "held":
+      return {
+        label: "Held in Escrow",
+        color: "bg-blue-900 text-blue-300"
+      };
+    case "released":
+      return {
+        label: "Released",
+        color: "bg-green-900 text-green-300"
+      };
+    case "disputed":
+      return {
+        label: "Disputed",
+        color: "bg-red-900 text-red-300"
+      };
+    default:
+      return {
+        label: "Unknown",
+        color: "bg-gray-700 text-gray-300"
+      };
+  }
+};
+
+/**
+ * Helper function to get dispute status display
+ * @param status - Dispute status
+ * @returns Display configuration for badges
+ */
+export const getDisputeStatusDisplay = (status?: RehomingTransaction["disputeStatus"]) => {
+  switch (status) {
+    case "none":
+      return {
+        label: "No Dispute",
+        color: "bg-green-900 text-green-300"
+      };
+    case "open":
+      return {
+        label: "Dispute Open",
+        color: "bg-red-900 text-red-300"
+      };
+    case "resolved":
+      return {
+        label: "Dispute Resolved",
+        color: "bg-blue-900 text-blue-300"
+      };
+    default:
+      return {
+        label: "No Dispute",
+        color: "bg-green-900 text-green-300"
       };
   }
 };

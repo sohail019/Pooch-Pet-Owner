@@ -107,15 +107,6 @@ const AddPet: React.FC<{ onboarding?: boolean }> = ({ onboarding }) => {
           >
             Skip
           </button>
-          
-          {/* Debug button - remove after fixing */}
-          <button
-            type="button"
-            onClick={() => window.location.href = "/onboarding/add-medical"}
-            className="mt-2 w-full bg-red-200 text-red-800 rounded py-2 font-semibold"
-          >
-            Debug: Force Navigate
-          </button>
         </>
       )}
     </div>

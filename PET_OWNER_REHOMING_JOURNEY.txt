@@ -1,0 +1,576 @@
+===============================================================================
+PET OWNER REHOMING JOURNEY - COMPLETE FRONTEND IMPLEMENTATION GUIDE
+===============================================================================
+
+OVERVIEW
+========
+This document outlines the complete pet owner journey for listing pets for adoption,
+managing adoption requests, processing payments, and confirming transfers. All 
+endpoints are verified and exist in the current codebase.
+
+AUTHENTICATION
+==============
+Base URL: http://localhost:4000/api
+Pet Owner Login: POST /api/auth/login
+Token: Bearer <pet_owner_token>
+Role: pet_owner
+
+===============================================================================
+1. PET OWNER DASHBOARD - OVERVIEW
+===============================================================================
+
+GET /api/rehoming/mine
+Authorization: Bearer <pet_owner_token>
+Description: Get all pets listed by the current pet owner
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Buddy",
+      "species": "dog",
+      "breed": "Golden Retriever",
+      "age": 3,
+      "description": "Friendly and energetic",
+      "images": ["url1", "url2"],
+      "price": 500,
+      "adoptionType": "paid",
+      "isVerified": true,
+      "isAdopted": false,
+      "createdAt": "2024-01-15T10:30:00Z",
+      "adoptionRequests": [
+        {
+          "id": "uuid",
+          "status": "pending",
+          "adopter": {
+            "name": "Jane Smith",
+            "email": "jane@example.com"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+GET /api/rehoming/adoption-requests
+Authorization: Bearer <pet_owner_token>
+Description: Get all adoption requests for pets owned by current user
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "status": "pending",
+      "message": "I would love to adopt Buddy!",
+      "paymentRequired": true,
+      "paymentAmount": 500,
+      "createdAt": "2024-01-15T10:30:00Z",
+      "adopter": {
+        "id": "uuid",
+        "name": "Jane Smith",
+        "email": "jane@example.com",
+        "phone": "+1234567890"
+      },
+      "pet": {
+        "id": "uuid",
+        "name": "Buddy",
+        "species": "dog",
+        "images": ["url1", "url2"]
+      }
+    }
+  ]
+}
+
+===============================================================================
+2. PET LISTING & MANAGEMENT
+===============================================================================
+
+POST /api/rehoming/
+Authorization: Bearer <pet_owner_token>
+Description: Create a new rehoming pet listing
+Request Body:
+{
+  "name": "Luna",
+  "species": "cat",
+  "breed": "Persian",
+  "age": 2,
+  "description": "Beautiful Persian cat looking for a loving home",
+  "images": ["url1", "url2"],
+  "price": 300,
+  "adoptionType": "paid",
+  "location": "New York",
+  "healthStatus": "healthy",
+  "vaccinationStatus": "up_to_date",
+  "microchipped": true,
+  "spayedNeutered": true
+}
+Response:
+{
+  "success": true,
+  "message": "Pet listed for adoption successfully",
+  "data": {
+    "id": "uuid",
+    "name": "Luna",
+    "isVerified": false,
+    "status": "pending_verification"
+  }
+}
+
+GET /api/rehoming/{petId}
+Authorization: Bearer <pet_owner_token>
+Description: Get specific pet details
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "name": "Buddy",
+    "species": "dog",
+    "breed": "Golden Retriever",
+    "age": 3,
+    "description": "Friendly and energetic",
+    "images": ["url1", "url2"],
+    "price": 500,
+    "adoptionType": "paid",
+    "isVerified": true,
+    "isAdopted": false,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "adoptionRequests": [
+      {
+        "id": "uuid",
+        "status": "pending",
+        "adopter": {
+          "name": "Jane Smith",
+          "email": "jane@example.com"
+        }
+      }
+    ]
+  }
+}
+
+PUT /api/rehoming/{petId}
+Authorization: Bearer <pet_owner_token>
+Description: Update pet listing details
+Request Body:
+{
+  "name": "Buddy Updated",
+  "description": "Updated description",
+  "price": 600,
+  "images": ["url1", "url2", "url3"]
+}
+Response:
+{
+  "success": true,
+  "message": "Pet listing updated successfully",
+  "data": {
+    "id": "uuid",
+    "name": "Buddy Updated"
+  }
+}
+
+DELETE /api/rehoming/{petId}
+Authorization: Bearer <pet_owner_token>
+Description: Delete pet listing
+Response:
+{
+  "success": true,
+  "message": "Pet listing deleted successfully"
+}
+
+===============================================================================
+3. ADOPTION REQUEST MANAGEMENT
+===============================================================================
+
+GET /api/rehoming/{petId}/requests
+Authorization: Bearer <pet_owner_token>
+Description: Get all adoption requests for a specific pet
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "status": "pending",
+      "message": "I would love to adopt Buddy!",
+      "paymentRequired": true,
+      "paymentAmount": 500,
+      "createdAt": "2024-01-15T10:30:00Z",
+      "adopter": {
+        "id": "uuid",
+        "name": "Jane Smith",
+        "email": "jane@example.com",
+        "phone": "+1234567890"
+      }
+    }
+  ]
+}
+
+PUT /api/rehoming/adoption-request/{requestId}/status
+Authorization: Bearer <pet_owner_token>
+Description: Accept or reject an adoption request
+Request Body:
+{
+  "status": "accepted",
+  "message": "Thank you for your interest! I accept your adoption request."
+}
+Response:
+{
+  "success": true,
+  "message": "Adoption request status updated successfully",
+  "data": {
+    "id": "uuid",
+    "status": "accepted",
+    "paymentRequired": true,
+    "paymentAmount": 500
+  }
+}
+
+===============================================================================
+4. PAYMENT PROCESSING
+===============================================================================
+
+POST /api/payment/rehoming-transactions/process-payment/{adoptionRequestId}
+Authorization: Bearer <pet_owner_token>
+Description: Process payment for adoption request
+Request Body:
+{
+  "paymentMethod": "stripe",
+  "gatewayResponse": {
+    "paymentIntentId": "pi_1234567890",
+    "status": "succeeded"
+  }
+}
+Response:
+{
+  "success": true,
+  "message": "Payment processed successfully",
+  "data": {
+    "id": "uuid",
+    "amount": 500.00,
+    "platformFee": 25.00,
+    "netAmount": 475.00,
+    "status": "completed",
+    "escrowStatus": "held",
+    "adoptionRequest": {
+      "id": "uuid",
+      "status": "pet_transfer_pending"
+    }
+  }
+}
+
+GET /api/payment/rehoming-transactions/my-transactions
+Authorization: Bearer <pet_owner_token>
+Description: Get all transactions for the current pet owner
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "amount": 500.00,
+      "platformFee": 25.00,
+      "netAmount": 475.00,
+      "status": "completed",
+      "escrowStatus": "held",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "adoptionRequest": {
+        "id": "uuid",
+        "pet": {
+          "id": "uuid",
+          "name": "Buddy"
+        },
+        "adopter": {
+          "id": "uuid",
+          "name": "Jane Smith",
+          "email": "jane@example.com"
+        }
+      }
+    }
+  ]
+}
+
+GET /api/payment/rehoming-transactions/{transactionId}
+Authorization: Bearer <pet_owner_token>
+Description: Get specific transaction details
+Response:
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "amount": 500.00,
+    "platformFee": 25.00,
+    "netAmount": 475.00,
+    "status": "completed",
+    "escrowStatus": "held",
+    "disputeStatus": "none",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "adoptionRequest": {
+      "id": "uuid",
+      "pet": {
+        "id": "uuid",
+        "name": "Buddy"
+      },
+      "adopter": {
+        "id": "uuid",
+        "name": "Jane Smith"
+      }
+    }
+  }
+}
+
+===============================================================================
+5. TRANSFER CONFIRMATION
+===============================================================================
+
+GET /api/rehoming/transfer/pending
+Authorization: Bearer <pet_owner_token>
+Description: Get pending transfer confirmations
+Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "status": "pet_transfer_pending",
+      "adopterConfirmation": false,
+      "petOwnerConfirmation": false,
+      "pet": {
+        "id": "uuid",
+        "name": "Buddy",
+        "species": "dog"
+      },
+      "adopter": {
+        "id": "uuid",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      }
+    }
+  ]
+}
+
+POST /api/rehoming/transfer/confirm-pet-owner
+Authorization: Bearer <pet_owner_token>
+Description: Confirm pet transfer by pet owner
+Request Body:
+{
+  "adoptionRequestId": "uuid",
+  "confirmationMessage": "Pet transferred successfully to adopter"
+}
+Response:
+{
+  "success": true,
+  "message": "Pet transfer confirmed by pet owner",
+  "data": {
+    "id": "uuid",
+    "petOwnerConfirmation": true,
+    "petOwnerConfirmationDate": "2024-01-15T10:30:00Z",
+    "status": "pet_transfer_confirmed"
+  }
+}
+
+POST /api/rehoming/transfer/confirm-adopter
+Authorization: Bearer <pet_owner_token>
+Description: Confirm pet transfer by adopter (if pet owner is also adopter)
+Request Body:
+{
+  "adoptionRequestId": "uuid",
+  "confirmationMessage": "Received the pet in good condition"
+}
+Response:
+{
+  "success": true,
+  "message": "Pet transfer confirmed by adopter",
+  "data": {
+    "id": "uuid",
+    "adopterConfirmation": true,
+    "adopterConfirmationDate": "2024-01-15T10:30:00Z",
+    "status": "pet_transfer_confirmed"
+  }
+}
+
+===============================================================================
+6. DISPUTE MANAGEMENT
+===============================================================================
+
+POST /api/payment/escrow/dispute
+Authorization: Bearer <pet_owner_token>
+Description: Open a dispute for a transaction
+Request Body:
+{
+  "transactionId": "uuid",
+  "reason": "Adopter claims pet is not as described",
+  "evidence": "Photos and description of issues"
+}
+Response:
+{
+  "success": true,
+  "message": "Dispute opened successfully",
+  "data": {
+    "id": "uuid",
+    "disputeStatus": "open",
+    "disputeReason": "Adopter claims pet is not as described",
+    "disputeOpenedAt": "2024-01-15T10:30:00Z"
+  }
+}
+
+===============================================================================
+7. FRONTEND IMPLEMENTATION CHECKLIST
+===============================================================================
+
+DASHBOARD PAGE:
+□ Overview of all listed pets
+□ Recent adoption requests
+□ Payment status overview
+□ Quick action buttons
+
+PET LISTING PAGE:
+□ Create new pet listing form
+□ Image upload functionality
+□ Pet details management
+□ Status tracking (pending/verified)
+
+PET MANAGEMENT PAGE:
+□ List all owned pets
+□ Edit pet details
+□ Delete pet listings
+□ View adoption requests per pet
+
+ADOPTION REQUESTS PAGE:
+□ List all adoption requests
+□ Accept/Reject functionality
+□ Request details view
+□ Communication with adopters
+
+PAYMENT PROCESSING PAGE:
+□ Payment form integration
+□ Transaction history
+□ Payment status tracking
+□ Escrow status monitoring
+
+TRANSFER CONFIRMATION PAGE:
+□ Pending confirmations list
+□ Confirm transfer buttons
+□ Transfer status tracking
+□ Completion notifications
+
+DISPUTE MANAGEMENT PAGE:
+□ Open disputes list
+□ Dispute resolution interface
+□ Evidence upload
+□ Communication with admin
+
+===============================================================================
+8. USER JOURNEY FLOW
+===============================================================================
+
+STEP 1: LIST PET FOR ADOPTION
+1. Navigate to "List Pet" page
+2. Fill out pet details form
+3. Upload pet images
+4. Set adoption type (free/paid) and price
+5. Submit for admin verification
+6. Wait for verification (admin reviews)
+
+STEP 2: MANAGE ADOPTION REQUESTS
+1. Receive adoption request notification
+2. Review adopter details and message
+3. Accept or reject request
+4. If accepted, payment processing begins
+
+STEP 3: PAYMENT PROCESSING
+1. Adopter completes payment
+2. Money held in escrow
+3. Status changes to "pet_transfer_pending"
+4. Both parties notified to confirm transfer
+
+STEP 4: TRANSFER CONFIRMATION
+1. Physically transfer pet to adopter
+2. Confirm transfer via app
+3. Wait for adopter confirmation
+4. Escrow automatically released when both confirm
+
+STEP 5: COMPLETION
+1. Pet marked as adopted
+2. Money transferred to pet owner account
+3. Transaction completed
+4. Feedback and rating system
+
+===============================================================================
+9. NOTIFICATION SYSTEM
+===============================================================================
+
+Pet Owner should receive notifications for:
+- New adoption requests
+- Payment completions
+- Transfer confirmations
+- Dispute updates
+- Admin verification results
+- Escrow releases
+
+===============================================================================
+10. ERROR HANDLING
+===============================================================================
+
+Common Error Responses:
+{
+  "success": false,
+  "message": "Error description",
+  "error": "detailed_error_info"
+}
+
+HTTP Status Codes:
+- 200: Success
+- 400: Bad Request (validation errors)
+- 401: Unauthorized (invalid token)
+- 403: Forbidden (insufficient permissions)
+- 404: Not Found
+- 500: Internal Server Error
+
+Common Error Scenarios:
+1. "Pet not found" - Invalid pet ID
+2. "Only the pet owner can perform this action" - Unauthorized access
+3. "Payment already processed" - Duplicate payment
+4. "Transfer already confirmed" - Duplicate confirmation
+5. "Invalid adoption request status" - Wrong status for action
+
+===============================================================================
+11. SECURITY CONSIDERATIONS
+===============================================================================
+
+Authentication:
+- All endpoints require valid JWT token
+- Role-based access control (pet_owner)
+- Token expiration handling
+
+Authorization:
+- Pet owners can only manage their own pets
+- Cannot access other users' data
+- Cannot modify verified pets without admin permission
+
+Data Validation:
+- Input sanitization
+- File upload restrictions
+- Payment verification
+- Transfer confirmation validation
+
+===============================================================================
+12. PERFORMANCE OPTIMIZATION
+===============================================================================
+
+Frontend Considerations:
+- Lazy loading for pet images
+- Pagination for large lists
+- Caching of user data
+- Optimistic updates for better UX
+
+API Considerations:
+- Efficient database queries
+- Proper indexing
+- Rate limiting
+- Response compression
+
+===============================================================================
+END OF PET OWNER REHOMING JOURNEY DOCUMENTATION
+=============================================================================== 

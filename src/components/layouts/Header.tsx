@@ -51,6 +51,9 @@ const Header: React.FC = () => {
       <button onClick={() => handleNav("/rehoming")} className="hover:underline">
         Rehoming
       </button>
+      <button onClick={() => handleNav("/rehoming/transactions")} className="hover:underline">
+        Transactions
+      </button>
       <button onClick={() => handleNav("/add-pet")} className="hover:underline">
         Add Pet
       </button>
@@ -98,6 +101,12 @@ const Header: React.FC = () => {
         className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
         >
         Rehoming
+        </button>
+        <button
+        onClick={() => handleNav("/rehoming/transactions")}
+        className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
+        >
+        Transactions
         </button>
         <button
         onClick={() => handleNav("/add-pet")}
