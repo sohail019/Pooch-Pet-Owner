@@ -24,6 +24,10 @@ import RehomingDetails from '@/pages/rehoming/RehomingDetails';
 import CreateRehoming from '@/pages/rehoming/CreateRehoming';
 import MyRehomingPets from '@/pages/rehoming/MyRehomingPets';
 import AdoptionRequests from '@/pages/rehoming/AdoptionRequests';
+import PaymentPage from '@/pages/rehoming/PaymentPage';
+import TransferConfirmationPage from '@/pages/rehoming/TransferConfirmationPage';
+import DisputeManagementPage from '@/pages/rehoming/DisputeManagementPage';
+import TransactionHistoryPage from '@/pages/rehoming/TransactionHistoryPage';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -73,6 +77,11 @@ const AppRouter = () => (
         <Route path="/rehoming/create" element={<CreateRehoming />} />
         <Route path="/rehoming/my-pets" element={<MyRehomingPets />} />
         <Route path="/rehoming/my-requests" element={<AdoptionRequests />} />
+        <Route path="/rehoming/payment/:requestId" element={<PaymentPage />} />
+        <Route path="/rehoming/transfer-confirmation" element={<TransferConfirmationPage />} />
+        <Route path="/rehoming/dispute-management" element={<DisputeManagementPage />} />
+        <Route path="/rehoming/transactions" element={<TransactionHistoryPage />} />
+        <Route path="/rehoming/transaction/:transactionId" element={<TransactionHistoryPage />} />
 
         {/* Onboarding Flow */}
         <Route path="/onboarding/add-pet" element={<AddPet onboarding />} />

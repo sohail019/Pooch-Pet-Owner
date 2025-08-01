@@ -381,6 +381,28 @@ const AdoptionRequests: React.FC = () => {
                     </Button>
                   </div>
                 )}
+                
+                {/* Payment Actions for Accepted Requests */}
+                {request.status === "accepted" && (
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    <Button
+                    onClick={() => navigate(`/rehoming/payment/${request.id}`)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                    >
+                    💳 Process Payment
+                    </Button>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transfer-confirmation")}
+                    variant="outline"
+                    size="sm"
+                    className="border-yellow-600 text-yellow-200 bg-yellow-900/20 hover:bg-yellow-800/30"
+                    >
+                    📋 View Transfer Status
+                    </Button>
+                  </div>
+                )}
                 </div>
               </div>
             </div>
