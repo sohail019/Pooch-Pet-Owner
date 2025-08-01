@@ -1,0 +1,436 @@
+REHOMING AND ADOPTION API DOCUMENTATION
+==========================================
+
+This document outlines the complete user journey for rehoming and adopting pets through the Pooch API.
+
+AUTHENTICATION
+==============
+- User endpoints require Bearer token with role "pet_owner"
+- Admin endpoints require Bearer token with role "admin" or "superadmin"
+- Public endpoints require no authentication
+
+USER JOURNEY: REHOMING PETS
+============================
+
+1. BROWSE AVAILABLE PETS (Public)
+---------------------------------
+GET /rehoming
+
+Query Parameters:
+- species: "dog" | "cat" (optional)
+- adoptionType: "free" | "paid" (optional)
+- minAge: number (optional)
+- maxAge: number (optional)
+- minPrice: number (optional)
+- maxPrice: number (optional)
+- search: string (optional)
+- page: number (default: 1)
+- limit: number (default: 10, max: 100)
+
+Example Request:
+GET /rehoming?species=dog&adoptionType=free&page=1&limit=10
+
+Example Response:
+{
+  "success": true,
+  "data": {
+    "pets": [
+      {
+        "id": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+        "ownerId": "9c514569-5767-4e87-a7cd-906d0655d026",
+        "name": "Buddy",
+        "species": "dog",
+        "breed": "Golden Retriever",
+        "age": 3,
+        "description": "Friendly and well-trained dog looking for a loving home.",
+        "imageUrls": [
+          "https://fastly.picsum.photos/id/484/200/200.jpg?hmac=3rqhoyJTHVOGelhVPMaglcnpAMl_V3cvNkHZDpSz6_g"
+        ],
+        "adoptionType": "free",
+        "price": null,
+        "isVerified": true,
+        "isAdopted": false,
+        "createdAt": "2025-07-31T13:05:11.121Z",
+        "updatedAt": "2025-07-31T13:05:11.121Z",
+        "owner": {
+          "id": "9c514569-5767-4e87-a7cd-906d0655d026",
+          "name": "System User",
+          "email": "system@pooch.com",
+          "phone": "0000000000"
+        }
+      }
+    ],
+    "total": 1,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 1
+  }
+}
+
+2. VIEW PET DETAILS (Public)
+----------------------------
+GET /rehoming/:id
+
+Example Request:
+GET /rehoming/03e62de1-9c93-4a85-b919-ffa14e78968b
+
+Example Response:
+{
+  "success": true,
+  "data": {
+    "id": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+    "ownerId": "9c514569-5767-4e87-a7cd-906d0655d026",
+    "name": "Buddy",
+    "species": "dog",
+    "breed": "Golden Retriever",
+    "age": 3,
+    "description": "Friendly and well-trained dog looking for a loving home.",
+    "imageUrls": [
+      "https://fastly.picsum.photos/id/484/200/200.jpg?hmac=3rqhoyJTHVOGelhVPMaglcnpAMl_V3cvNkHZDpSz6_g"
+    ],
+    "adoptionType": "free",
+    "price": null,
+    "isVerified": true,
+    "isAdopted": false,
+    "createdAt": "2025-07-31T13:05:11.121Z",
+    "updatedAt": "2025-07-31T13:05:11.121Z",
+    "owner": {
+      "id": "9c514569-5767-4e87-a7cd-906d0655d026",
+      "name": "System User",
+      "email": "system@pooch.com",
+      "phone": "0000000000"
+    }
+  }
+}
+
+3. CREATE ADOPTION REQUEST (Pet Owner)
+--------------------------------------
+POST /rehoming/:id/request
+
+Headers:
+Authorization: Bearer <user_token>
+
+Request Body:
+{
+  "message": "I would love to adopt this pet! I have a large backyard and experience with dogs." (optional)
+}
+
+Example Request:
+POST /rehoming/03e62de1-9c93-4a85-b919-ffa14e78968b/request
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+{
+  "message": "I would love to adopt this pet! I have a large backyard and experience with dogs."
+}
+
+Example Response:
+{
+  "success": true,
+  "message": "Adoption request created successfully",
+  "data": {
+    "id": "adoption-request-id",
+    "petId": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+    "adopterId": "user-id",
+    "message": "I would love to adopt this pet! I have a large backyard and experience with dogs.",
+    "status": "pending",
+    "createdAt": "2025-07-31T13:20:00.000Z",
+    "updatedAt": "2025-07-31T13:20:00.000Z"
+  }
+}
+
+4. VIEW MY ADOPTION REQUESTS (Pet Owner)
+----------------------------------------
+GET /rehoming/adoption-requests
+
+Headers:
+Authorization: Bearer <user_token>
+
+Example Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "adoption-request-id",
+      "petId": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+      "adopterId": "user-id",
+      "message": "I would love to adopt this pet!",
+      "status": "pending",
+      "createdAt": "2025-07-31T13:20:00.000Z",
+      "updatedAt": "2025-07-31T13:20:00.000Z",
+      "pet": {
+        "id": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+        "name": "Buddy",
+        "species": "dog",
+        "breed": "Golden Retriever",
+        "age": 3,
+        "description": "Friendly and well-trained dog looking for a loving home.",
+        "imageUrls": ["https://example.com/image.jpg"],
+        "adoptionType": "free",
+        "price": null,
+        "isVerified": true,
+        "isAdopted": false
+      }
+    }
+  ]
+}
+
+USER JOURNEY: LISTING PETS FOR ADOPTION
+=======================================
+
+1. CREATE REHOMING PET LISTING (Pet Owner)
+------------------------------------------
+POST /rehoming
+
+Headers:
+Authorization: Bearer <user_token>
+
+Request Body:
+{
+  "name": "Buddy",
+  "species": "dog", // "dog" | "cat"
+  "breed": "Golden Retriever",
+  "age": 3,
+  "description": "Friendly and well-trained dog looking for a loving home. He loves playing fetch and going for walks.",
+  "imageUrls": [
+    "https://fastly.picsum.photos/id/484/200/200.jpg?hmac=3rqhoyJTHVOGelhVPMaglcnpAMl_V3cvNkHZDpSz6_g"
+  ],
+  "adoptionType": "free", // "free" | "paid"
+  "price": null // Required if adoptionType is "paid"
+}
+
+Example Request:
+POST /rehoming
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+{
+  "name": "Buddy",
+  "species": "dog",
+  "breed": "Golden Retriever",
+  "age": 3,
+  "description": "Friendly and well-trained dog looking for a loving home. He loves playing fetch and going for walks.",
+  "imageUrls": [
+    "https://fastly.picsum.photos/id/484/200/200.jpg?hmac=3rqhoyJTHVOGelhVPMaglcnpAMl_V3cvNkHZDpSz6_g"
+  ],
+  "adoptionType": "free"
+}
+
+Example Response:
+{
+  "success": true,
+  "message": "Pet listed for adoption successfully",
+  "data": {
+    "id": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+    "ownerId": "user-id",
+    "name": "Buddy",
+    "species": "dog",
+    "breed": "Golden Retriever",
+    "age": 3,
+    "description": "Friendly and well-trained dog looking for a loving home. He loves playing fetch and going for walks.",
+    "imageUrls": [
+      "https://fastly.picsum.photos/id/484/200/200.jpg?hmac=3rqhoyJTHVOGelhVPMaglcnpAMl_V3cvNkHZDpSz6_g"
+    ],
+    "adoptionType": "free",
+    "price": null,
+    "isVerified": false,
+    "isAdopted": false,
+    "createdAt": "2025-07-31T13:05:11.121Z",
+    "updatedAt": "2025-07-31T13:05:11.121Z"
+  }
+}
+
+2. VIEW MY REHOMING PETS (Pet Owner)
+-------------------------------------
+GET /rehoming/mine
+
+Headers:
+Authorization: Bearer <user_token>
+
+Example Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+      "ownerId": "user-id",
+      "name": "Buddy",
+      "species": "dog",
+      "breed": "Golden Retriever",
+      "age": 3,
+      "description": "Friendly and well-trained dog looking for a loving home.",
+      "imageUrls": ["https://example.com/image.jpg"],
+      "adoptionType": "free",
+      "price": null,
+      "isVerified": false,
+      "isAdopted": false,
+      "createdAt": "2025-07-31T13:05:11.121Z",
+      "updatedAt": "2025-07-31T13:05:11.121Z"
+    }
+  ]
+}
+
+3. UPDATE REHOMING PET (Pet Owner)
+----------------------------------
+PUT /rehoming/:id
+
+Headers:
+Authorization: Bearer <user_token>
+
+Request Body (all fields optional):
+{
+  "name": "Updated Name",
+  "species": "dog",
+  "breed": "Updated Breed",
+  "age": 4,
+  "description": "Updated description",
+  "imageUrls": ["https://new-image-url.com"],
+  "adoptionType": "paid",
+  "price": 100
+}
+
+Example Response:
+{
+  "success": true,
+  "message": "Pet updated successfully",
+  "data": {
+    "id": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+    "ownerId": "user-id",
+    "name": "Updated Name",
+    "species": "dog",
+    "breed": "Updated Breed",
+    "age": 4,
+    "description": "Updated description",
+    "imageUrls": ["https://new-image-url.com"],
+    "adoptionType": "paid",
+    "price": 100,
+    "isVerified": false,
+    "isAdopted": false,
+    "createdAt": "2025-07-31T13:05:11.121Z",
+    "updatedAt": "2025-07-31T13:20:00.000Z"
+  }
+}
+
+4. DELETE REHOMING PET (Pet Owner)
+----------------------------------
+DELETE /rehoming/:id
+
+Headers:
+Authorization: Bearer <user_token>
+
+Example Response:
+{
+  "success": true,
+  "message": "Pet removed from adoption listing"
+}
+
+PET OWNER: MANAGING ADOPTION REQUESTS
+====================================
+
+1. VIEW ADOPTION REQUESTS FOR MY PET (Pet Owner)
+------------------------------------------------
+GET /rehoming/:id/requests
+
+Headers:
+Authorization: Bearer <user_token>
+
+Example Response:
+{
+  "success": true,
+  "data": [
+    {
+      "id": "adoption-request-id",
+      "petId": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+      "adopterId": "adopter-user-id",
+      "message": "I would love to adopt this pet!",
+      "status": "pending",
+      "createdAt": "2025-07-31T13:20:00.000Z",
+      "updatedAt": "2025-07-31T13:20:00.000Z",
+      "adopter": {
+        "id": "adopter-user-id",
+        "name": "John Doe",
+        "email": "john@example.com",
+        "phone": "1234567890"
+      }
+    }
+  ]
+}
+
+2. UPDATE ADOPTION REQUEST STATUS (Pet Owner)
+---------------------------------------------
+PUT /rehoming/adoption-request/:id/status
+
+Headers:
+Authorization: Bearer <user_token>
+
+Request Body:
+{
+  "status": "accepted" // "pending" | "accepted" | "rejected"
+}
+
+Example Request:
+PUT /rehoming/adoption-request/adoption-request-id/status
+Authorization: Bearer <user_token>
+Content-Type: application/json
+
+{
+  "status": "accepted"
+}
+
+Example Response:
+{
+  "success": true,
+  "message": "Adoption request status updated successfully",
+  "data": {
+    "id": "adoption-request-id",
+    "petId": "03e62de1-9c93-4a85-b919-ffa14e78968b",
+    "adopterId": "adopter-user-id",
+    "message": "I would love to adopt this pet!",
+    "status": "accepted",
+    "createdAt": "2025-07-31T13:20:00.000Z",
+    "updatedAt": "2025-07-31T13:25:00.000Z"
+  }
+}
+
+DATA MODELS
+===========
+
+RehomingPet:
+{
+  id: string (UUID)
+  ownerId: string (UUID) - references users table
+  name: string (1-100 chars)
+  species: "dog" | "cat"
+  breed: string (1-100 chars)
+  age: number (0-30)
+  description: string (10-2000 chars)
+  imageUrls: string[] (1-10 URLs)
+  adoptionType: "free" | "paid"
+  price?: number (required if adoptionType is "paid")
+  isVerified: boolean
+  isAdopted: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+AdoptionRequest:
+{
+  id: string (UUID)
+  petId: string (UUID) - references rehoming_pets table
+  adopterId: string (UUID) - references users table
+  message?: string (0-1000 chars)
+  status: "pending" | "accepted" | "rejected"
+  createdAt: Date
+  updatedAt: Date
+}
+
+NOTES
+=====
+
+1. Admin-created pets are automatically verified (isVerified: true)
+2. User-created pets require admin verification (isVerified: false initially)
+3. Only verified pets appear in public search results
+4. Adoption requests can only be made for verified pets
+5. Pet owners can only manage their own pets and adoption requests
+6. Admins can manage all pets and view statistics
+7. The system uses a "System User" account for admin-created pets to maintain referential integrity 

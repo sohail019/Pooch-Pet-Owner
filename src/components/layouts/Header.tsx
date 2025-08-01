@@ -42,11 +42,14 @@ const Header: React.FC = () => {
       <button onClick={() => handleNav("/my-appointments")} className="hover:underline">
         My Appointments
       </button>
-      <button onClick={() => handleNav("/my-packages")} className="hover:underline">
+      {/* <button onClick={() => handleNav("/my-packages")} className="hover:underline">
         My Packages
-      </button>
+      </button> */}
       <button onClick={() => handleNav("/my-orders")} className="hover:underline">
         My Orders
+      </button>
+      <button onClick={() => handleNav("/rehoming")} className="hover:underline">
+        Rehoming
       </button>
       <button onClick={() => handleNav("/add-pet")} className="hover:underline">
         Add Pet
@@ -78,17 +81,23 @@ const Header: React.FC = () => {
         >
         My Appointments
         </button>
-        <button
+        {/* <button
         onClick={() => handleNav("/my-packages")}
         className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
         >
         My Packages
-        </button>
+        </button> */}
         <button
         onClick={() => handleNav("/my-orders")}
         className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
         >
         My Orders
+        </button>
+        <button
+        onClick={() => handleNav("/rehoming")}
+        className="px-5 py-4 text-left hover:bg-primary/10 transition-colors font-medium border-b border-gray-100"
+        >
+        Rehoming
         </button>
         <button
         onClick={() => handleNav("/add-pet")}

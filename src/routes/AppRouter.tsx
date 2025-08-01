@@ -19,6 +19,11 @@ import BookAppointment from '@/pages/vets/BookAppointment';
 import MyAppointments from '@/pages/vets/MyAppointments';
 import MyOrders from '@/pages/orders/MyOrders';
 import OrderDetails from '@/pages/orders/OrderDetails';
+import RehomingList from '@/pages/rehoming/RehomingList';
+import RehomingDetails from '@/pages/rehoming/RehomingDetails';
+import CreateRehoming from '@/pages/rehoming/CreateRehoming';
+import MyRehomingPets from '@/pages/rehoming/MyRehomingPets';
+import AdoptionRequests from '@/pages/rehoming/AdoptionRequests';
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -50,6 +55,7 @@ const AppRouter = () => (
 
         {/* Inventory Details & Payment */}
         <Route path="/inventory/:id" element={<InventoryDetails />} />
+        
 
         {/* My Orders */}
         <Route path="/my-orders" element={<MyOrders />} />
@@ -60,6 +66,13 @@ const AppRouter = () => (
         <Route path="/vets/:id" element={<VetAvailability />} />
         <Route path="/vets/:id/book" element={<BookAppointment />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
+
+        {/* Rehoming & Adoption */}
+        <Route path="/rehoming" element={<RehomingList />} />
+        <Route path="/rehoming/:id" element={<RehomingDetails />} />
+        <Route path="/rehoming/create" element={<CreateRehoming />} />
+        <Route path="/rehoming/my-pets" element={<MyRehomingPets />} />
+        <Route path="/rehoming/my-requests" element={<AdoptionRequests />} />
 
         {/* Onboarding Flow */}
         <Route path="/onboarding/add-pet" element={<AddPet onboarding />} />
