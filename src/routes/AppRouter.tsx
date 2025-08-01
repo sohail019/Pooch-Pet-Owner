@@ -24,6 +24,8 @@ import RehomingDetails from '@/pages/rehoming/RehomingDetails';
 import CreateRehoming from '@/pages/rehoming/CreateRehoming';
 import MyRehomingPets from '@/pages/rehoming/MyRehomingPets';
 import AdoptionRequests from '@/pages/rehoming/AdoptionRequests';
+import MyAdoptionRequests from '@/pages/rehoming/MyAdoptionRequests';
+import PetAdoptionRequests from '@/pages/rehoming/PetAdoptionRequests';
 import PaymentPage from '@/pages/rehoming/PaymentPage';
 import TransferConfirmationPage from '@/pages/rehoming/TransferConfirmationPage';
 import DisputeManagementPage from '@/pages/rehoming/DisputeManagementPage';
@@ -76,7 +78,9 @@ const AppRouter = () => (
         <Route path="/rehoming/:id" element={<RehomingDetails />} />
         <Route path="/rehoming/create" element={<CreateRehoming />} />
         <Route path="/rehoming/my-pets" element={<MyRehomingPets />} />
-        <Route path="/rehoming/my-requests" element={<AdoptionRequests />} />
+        <Route path="/rehoming/my-requests" element={<MyAdoptionRequests />} />
+        <Route path="/rehoming/pet-requests" element={<AdoptionRequests />} />
+        <Route path="/rehoming/:petId/requests" element={<PetAdoptionRequests />} />
         <Route path="/rehoming/payment/:requestId" element={<PaymentPage />} />
         <Route path="/rehoming/transfer-confirmation" element={<TransferConfirmationPage />} />
         <Route path="/rehoming/dispute-management" element={<DisputeManagementPage />} />

@@ -213,7 +213,7 @@ const CreateRehoming: React.FC = () => {
   };
 
   // Handle input changes
-  const handleInputChange = (field: keyof PetFormData, value: string | number) => {
+  const handleInputChange = (field: keyof PetFormData, value: string | number | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear field error when user starts typing
@@ -488,37 +488,26 @@ const CreateRehoming: React.FC = () => {
               {/* Upload Button */}
               <div>
                 <div className="flex items-center gap-4 mb-4">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="image-upload"
-                    disabled={imageUploading || formData.imageUrls.length >= 6}
-                  />
-                  <Label
-                    htmlFor="image-upload"
-                    className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                      imageUploading || formData.imageUrls.length >= 6
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      handleInputChange("imageUrls", [
+                        ...formData.imageUrls,
+                        "https://img.freepik.com/free-photo/cute-pet-collage-isolated_23-2150007407.jpg?semt=ais_hybrid&w=740&q=80",
+                      ].slice(0, 6))
+                    }
+                    disabled={formData.imageUrls.length >= 6}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                      formData.imageUrls.length >= 6
                         ? "bg-gray-700 text-gray-400 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700 text-white"
                     }`}
                   >
-                    {imageUploading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4" />
-                        Upload Photos
-                      </>
-                    )}
-                  </Label>
+                    <Upload className="w-4 h-4" />
+                    Add Demo Photo
+                  </Button>
                   <p className="text-gray-400 text-sm">
-                    {formData.imageUrls.length}/6 photos uploaded
+                    {formData.imageUrls.length}/6 photos added
                   </p>
                 </div>
                 

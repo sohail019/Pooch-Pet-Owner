@@ -142,6 +142,13 @@ const RehomingList: React.FC = () => {
                                         📋 My Requests
                                     </Button>
                                     <Button
+                                        onClick={() => navigate("/rehoming/pet-requests")}
+                                        variant="outline"
+                                        className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                                    >
+                                        📥 Pet Requests
+                                    </Button>
+                                    <Button
                                         onClick={() => navigate("/rehoming/transactions")}
                                         variant="outline"
                                         className="border-gray-600 text-gray-300 hover:bg-gray-700"

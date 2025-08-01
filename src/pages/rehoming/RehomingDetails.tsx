@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Verified, Phone, Mail, User, Calendar, Dog, Cat, MessageSquare, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Heart, Verified, Phone, Mail, User, Calendar, Dog, Cat, MessageSquare, AlertCircle, ChevronLeft, ChevronRight, CreditCard, Clock, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,10 @@ import { Label } from "@/components/ui/label";
 import { 
   getRehomingPetById, 
   createAdoptionRequest,
-  RehomingPet 
+  getMyAdoptionRequestsAsAdopter,
+  processAdoptionPayment,
+  RehomingPet,
+  AdoptionRequest 
 } from "@/controllers/rehomingController";
 import { handleApiError } from "@/types/errors";
 
@@ -27,6 +30,9 @@ const RehomingDetails: React.FC = () => {
   const [showAdoptionForm, setShowAdoptionForm] = useState(false);
   const [adoptionMessage, setAdoptionMessage] = useState("");
   const [submittingAdoption, setSubmittingAdoption] = useState(false);
+  const [myAdoptionRequest, setMyAdoptionRequest] = useState<AdoptionRequest | null>(null);
+  const [checkingRequest, setCheckingRequest] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   // Fetch pet details
   const fetchPetDetails = useCallback(async () => {
@@ -53,6 +59,28 @@ const RehomingDetails: React.FC = () => {
     }
   }, [id]);
 
+  // Check if current user has adoption request for this pet
+  const checkMyAdoptionRequest = useCallback(async () => {
+    if (!id) return;
+    
+    try {
+      setCheckingRequest(true);
+      console.log("🔍 Checking my adoption request for pet:", id);
+      
+      const myRequests = await getMyAdoptionRequestsAsAdopter();
+      const requestForThisPet = myRequests.find(request => request.pet?.id === id);
+      
+      setMyAdoptionRequest(requestForThisPet || null);
+      console.log("✅ My adoption request status:", requestForThisPet?.status || 'none');
+      
+    } catch (err) {
+      console.error("❌ Failed to check adoption request:", err);
+      // Don't show error toast for this - it's not critical
+    } finally {
+      setCheckingRequest(false);
+    }
+  }, [id]);
+
   // Handle adoption request
   const handleAdoptionRequest = async () => {
     if (!id) {
@@ -75,6 +103,9 @@ const RehomingDetails: React.FC = () => {
       setShowAdoptionForm(false);
       setAdoptionMessage("");
       
+      // Refresh adoption request status
+      await checkMyAdoptionRequest();
+      
       // Optionally navigate to adoption requests
       setTimeout(() => {
         navigate("/rehoming/my-requests");
@@ -85,6 +116,48 @@ const RehomingDetails: React.FC = () => {
       // Error handled by controller (toast)
     } finally {
       setSubmittingAdoption(false);
+    }
+  };
+
+  // Handle payment processing
+  const handlePaymentProcessing = async () => {
+    if (!myAdoptionRequest?.id) {
+      toast.error("Adoption request ID is required");
+      return;
+    }
+
+    try {
+      setProcessingPayment(true);
+      
+      console.log("💳 Processing payment for adoption request:", myAdoptionRequest.id);
+      
+      // For demo purposes, we'll simulate a successful payment
+      // In a real app, this would integrate with actual payment gateway (Stripe, etc.)
+      const paymentPayload = {
+        paymentMethod: "stripe" as const,
+        gatewayResponse: {
+          paymentIntentId: `pi_${Math.random().toString(36).substr(2, 9)}`,
+          status: "succeeded"
+        }
+      };
+      
+      await processAdoptionPayment(myAdoptionRequest.id, paymentPayload);
+      
+      // Refresh adoption request status to show the updated status
+      await checkMyAdoptionRequest();
+      
+      // Show success message and navigate
+      toast.success("Payment processed successfully! The pet owner will verify the payment.");
+      
+      setTimeout(() => {
+        navigate("/rehoming/my-requests");
+      }, 2000);
+      
+    } catch (err: unknown) {
+      console.error("❌ Failed to process payment:", err);
+      // Error handled by controller (toast)
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
@@ -121,8 +194,13 @@ const RehomingDetails: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchPetDetails();
-  }, [fetchPetDetails]);
+    const loadData = async () => {
+      await fetchPetDetails();
+      await checkMyAdoptionRequest();
+    };
+    
+    loadData();
+  }, [fetchPetDetails, checkMyAdoptionRequest]);
 
   // Loading state
   if (loading) {
@@ -409,77 +487,279 @@ const RehomingDetails: React.FC = () => {
               </Card>
             )}
 
-            {/* Adoption CTA */}
+            {/* Adoption CTA - Dynamic based on adoption request status */}
             {pet.isVerified && !pet.isAdopted && (
               <Card className="shadow-lg bg-gradient-to-br from-green-900/20 via-emerald-800/20 to-green-900/20 border border-green-800/50">
                 <CardContent className="p-6 text-center">
-                  <Heart className="w-12 h-12 text-green-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Interested in Adopting {pet.name}?
-                  </h3>
-                  <p className="text-gray-300 mb-6">
-                    Send an adoption request to the owner with a personal message about why you'd be a great fit!
-                  </p>
                   
-                  {!showAdoptionForm ? (
-                    <Button
-                      onClick={() => setShowAdoptionForm(true)}
-                      className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-8 py-3"
-                    >
-                      <Heart className="w-5 h-5 mr-2" />
-                      Send Adoption Request
-                    </Button>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="text-left">
-                        <Label htmlFor="adoptionMessage" className="text-gray-200 font-medium">
-                          Your Message to the Owner *
-                        </Label>
-                        <Textarea
-                          id="adoptionMessage"
-                          value={adoptionMessage}
-                          onChange={(e) => setAdoptionMessage(e.target.value)}
-                          placeholder="Tell the owner why you'd be perfect for this pet. Share your experience, living situation, and what you can offer..."
-                          rows={4}
-                          className="mt-2 bg-gray-800 border-gray-700 text-white"
-                        />
-                        <p className="text-sm text-gray-400 mt-1">
-                          {adoptionMessage.length}/1000 characters
+                  {/* No adoption request yet */}
+                  {!myAdoptionRequest && (
+                    <>
+                      <Heart className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        Interested in Adopting {pet.name}?
+                      </h3>
+                      <p className="text-gray-300 mb-6">
+                        Send an adoption request to the owner with a personal message about why you'd be a great fit!
+                      </p>
+                      
+                      {!showAdoptionForm ? (
+                        <Button
+                          onClick={() => setShowAdoptionForm(true)}
+                          className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold px-8 py-3"
+                        >
+                          <Heart className="w-5 h-5 mr-2" />
+                          Send Adoption Request
+                        </Button>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="text-left">
+                            <Label htmlFor="adoptionMessage" className="text-gray-200 font-medium">
+                              Your Message to the Owner *
+                            </Label>
+                            <Textarea
+                              id="adoptionMessage"
+                              value={adoptionMessage}
+                              onChange={(e) => setAdoptionMessage(e.target.value)}
+                              placeholder="Tell the owner why you'd be perfect for this pet. Share your experience, living situation, and what you can offer..."
+                              rows={4}
+                              className="mt-2 bg-gray-800 border-gray-700 text-white"
+                            />
+                            <p className="text-sm text-gray-400 mt-1">
+                              {adoptionMessage.length}/1000 characters
+                            </p>
+                          </div>
+                          
+                          <div className="flex gap-3">
+                            <Button
+                              onClick={() => {
+                                setShowAdoptionForm(false);
+                                setAdoptionMessage("");
+                              }}
+                              variant="outline"
+                              className="flex-1 border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
+                              disabled={submittingAdoption}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={handleAdoptionRequest}
+                              disabled={submittingAdoption || !adoptionMessage.trim()}
+                              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold"
+                            >
+                              {submittingAdoption ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                  Sending...
+                                </>
+                              ) : (
+                                <>
+                                  <MessageSquare className="w-4 h-4 mr-2" />
+                                  Send Request
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Pending adoption request */}
+                  {myAdoptionRequest?.status === "pending" && (
+                    <>
+                      <Clock className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        Request Submitted!
+                      </h3>
+                      <p className="text-gray-300 mb-4">
+                        Your adoption request for {pet.name} has been sent to the owner. They will review it and get back to you soon!
+                      </p>
+                      <div className="bg-yellow-900/30 border border-yellow-600 rounded-lg p-4 mb-4">
+                        <p className="text-yellow-200 text-sm">
+                          <strong>Your message:</strong> "{myAdoptionRequest.message}"
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => navigate("/rehoming/my-requests")}
+                        variant="outline"
+                        className="border-yellow-600 text-yellow-200 bg-yellow-900/20 hover:bg-yellow-800/30"
+                      >
+                        View My Requests
+                      </Button>
+                    </>
+                  )}
+
+                  {/* Accepted adoption request - Payment needed */}
+                  {myAdoptionRequest?.status === "payment_pending" && (
+                    <>
+                      <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        Request Accepted! 🎉
+                      </h3>
+                      <p className="text-gray-300 mb-4">
+                        Great news! The owner has accepted your adoption request for {pet.name}.
+                      </p>
+                      
+                      {pet.adoptionType === "paid" ? (
+                        <>
+                          <div className="bg-blue-900/30 border border-blue-600 rounded-lg p-4 mb-6">
+                            <p className="text-blue-200 text-sm mb-2">
+                              <strong>Next Step:</strong> Complete the payment to secure the adoption.
+                            </p>
+                            <p className="text-blue-200 text-sm">
+                              Amount: <span className="font-semibold text-lg">₹{pet.price}</span>
+                            </p>
+                          </div>
+                          
+                          <div className="flex gap-3">
+                            <Button
+                              onClick={() => navigate("/rehoming/my-requests")}
+                              variant="outline"
+                              className="flex-1 border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
+                            >
+                              View All Requests
+                            </Button>
+                            <Button
+                              onClick={handlePaymentProcessing}
+                              disabled={processingPayment}
+                              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold"
+                            >
+                              {processingPayment ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <CreditCard className="w-5 h-5 mr-2" />
+                                  Pay ₹{pet.price}
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="bg-green-900/30 border border-green-600 rounded-lg p-4 mb-6">
+                            <p className="text-green-200 text-sm">
+                              This is a free adoption! Contact the owner to arrange the transfer.
+                            </p>
+                          </div>
+                          
+                          <Button
+                            onClick={() => navigate("/rehoming/transfer-confirmation")}
+                            className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold"
+                          >
+                            <CheckCircle className="w-5 h-5 mr-2" />
+                            Proceed to Transfer
+                          </Button>
+                        </>
+                      )}
+                    </>
+                  )}
+
+                  {/* Payment completed - Waiting for pet owner verification */}
+                  {myAdoptionRequest?.status === "pet_transfer_pending" && (
+                    <>
+                      <CheckCircle className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        Payment Completed! 💰
+                      </h3>
+                      <p className="text-gray-300 mb-4">
+                        Your payment of ₹{pet.price} has been successfully processed and is being held in escrow.
+                      </p>
+                      
+                      <div className="bg-yellow-900/30 border border-yellow-600 rounded-lg p-4 mb-6">
+                        <p className="text-yellow-200 text-sm mb-2">
+                          <strong>Waiting for Pet Owner:</strong> The pet owner needs to verify the payment before proceeding to transfer.
+                        </p>
+                        <p className="text-yellow-200 text-sm">
+                          You will be notified once the owner confirms the payment and is ready for pet transfer.
                         </p>
                       </div>
                       
                       <div className="flex gap-3">
                         <Button
-                          onClick={() => {
-                            setShowAdoptionForm(false);
-                            setAdoptionMessage("");
-                          }}
+                          onClick={() => navigate("/rehoming/my-requests")}
                           variant="outline"
                           className="flex-1 border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
-                          disabled={submittingAdoption}
                         >
-                          Cancel
+                          View My Requests
                         </Button>
                         <Button
-                          onClick={handleAdoptionRequest}
-                          disabled={submittingAdoption || !adoptionMessage.trim()}
-                          className="flex-1 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold"
+                          onClick={() => navigate("/rehoming/transactions")}
+                          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold"
                         >
-                          {submittingAdoption ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                              Sending...
-                            </>
-                          ) : (
-                            <>
-                              <MessageSquare className="w-4 h-4 mr-2" />
-                              Send Request
-                            </>
-                          )}
+                          <CreditCard className="w-5 h-5 mr-2" />
+                          View Transaction
                         </Button>
                       </div>
-                    </div>
+                    </>
                   )}
+
+                  {/* Pet owner verified payment - Ready for transfer */}
+                  {myAdoptionRequest?.status === "payment_verified" && (
+                    <>
+                      <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        Payment Verified! ✅
+                      </h3>
+                      <p className="text-gray-300 mb-4">
+                        The pet owner has verified your payment. You can now proceed with the pet transfer!
+                      </p>
+                      
+                      <div className="bg-green-900/30 border border-green-600 rounded-lg p-4 mb-6">
+                        <p className="text-green-200 text-sm mb-2">
+                          <strong>Next Step:</strong> Coordinate with the pet owner to arrange the physical transfer of {pet.name}.
+                        </p>
+                        <p className="text-green-200 text-sm">
+                          Your payment (₹{pet.price}) will be released to the owner once both parties confirm the transfer.
+                        </p>
+                      </div>
+                      
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={() => navigate("/rehoming/transactions")}
+                          variant="outline"
+                          className="flex-1 border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
+                        >
+                          View Transaction
+                        </Button>
+                        <Button
+                          onClick={() => navigate("/rehoming/transfer-confirmation")}
+                          className="flex-1 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white font-semibold"
+                        >
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Confirm Transfer
+                        </Button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Rejected adoption request */}
+                  {myAdoptionRequest?.status === "rejected" && (
+                    <>
+                      <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        Request Not Accepted
+                      </h3>
+                      <p className="text-gray-300 mb-4">
+                        Unfortunately, the owner decided not to proceed with your adoption request for {pet.name}.
+                      </p>
+                      <p className="text-gray-400 text-sm mb-6">
+                        Don't worry! There are many other wonderful pets looking for homes.
+                      </p>
+                      <Button
+                        onClick={() => navigate("/rehoming")}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold"
+                      >
+                        <Heart className="w-5 h-5 mr-2" />
+                        Browse Other Pets
+                      </Button>
+                    </>
+                  )}
+
                 </CardContent>
               </Card>
             )}

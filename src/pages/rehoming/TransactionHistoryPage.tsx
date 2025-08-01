@@ -29,8 +29,11 @@ const TransactionHistoryPage: React.FC = () => {
         setError("");
 
         const transactionData = await getMyTransactions();
-        // Ensure transactions is always an array
-        setTransactions(Array.isArray(transactionData) ? transactionData : []);
+        // Ensure transactions is always an array and validate data
+        const validTransactions = Array.isArray(transactionData) ? transactionData.filter(t => t && typeof t === 'object') : [];
+        setTransactions(validTransactions);
+        
+        console.log("✅ Loaded transactions:", validTransactions.length, validTransactions);
 
       } catch (err) {
         console.error("Failed to load transactions:", err);
@@ -134,7 +137,7 @@ const TransactionHistoryPage: React.FC = () => {
                   <div>
                     <p className="text-gray-400 text-sm">Total Received</p>
                     <p className="text-2xl font-bold text-green-400">
-                      ${transactions.reduce((sum, t) => sum + t.netAmount, 0).toFixed(2)}
+                      ₹{transactions.reduce((sum, t) => sum + (Number(t.netAmount) || 0), 0).toFixed(2)}
                     </p>
                   </div>
                   <DollarSign className="w-8 h-8 text-green-400" />
@@ -148,9 +151,9 @@ const TransactionHistoryPage: React.FC = () => {
                   <div>
                     <p className="text-gray-400 text-sm">In Escrow</p>
                     <p className="text-2xl font-bold text-yellow-400">
-                      ${transactions
-                        .filter(t => t.escrowStatus === "held")
-                        .reduce((sum, t) => sum + t.netAmount, 0)
+                      ₹{transactions
+                        .filter(t => t && t.escrowStatus === "held")
+                        .reduce((sum, t) => sum + (Number(t.netAmount) || 0), 0)
                         .toFixed(2)}
                     </p>
                   </div>
@@ -186,7 +189,7 @@ const TransactionHistoryPage: React.FC = () => {
                   <CardTitle className="text-white flex items-center justify-between">
                     <div className="flex items-center">
                       <FileText className="w-5 h-5 mr-2" />
-                      {transaction.adoptionRequest.pet.name} - Adoption Payment
+                      {transaction.adoptionRequest?.pet?.name || 'Unknown Pet'} - Adoption Payment
                     </div>
                     <div className="flex space-x-2">
                       <Badge className={getTransactionStatusDisplay(transaction.status).color}>
@@ -208,15 +211,15 @@ const TransactionHistoryPage: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="bg-gray-700 rounded-lg p-4">
                       <p className="text-gray-400 text-sm">Gross Amount</p>
-                      <p className="text-white text-lg font-semibold">${transaction.amount.toFixed(2)}</p>
+                      <p className="text-white text-lg font-semibold">₹{(Number(transaction.amount) || 0).toFixed(2)}</p>
                     </div>
                     <div className="bg-gray-700 rounded-lg p-4">
                       <p className="text-gray-400 text-sm">Platform Fee</p>
-                      <p className="text-red-400 text-lg font-semibold">-${transaction.platformFee.toFixed(2)}</p>
+                      <p className="text-red-400 text-lg font-semibold">-₹{(Number(transaction.platformFee) || 0).toFixed(2)}</p>
                     </div>
                     <div className="bg-gray-700 rounded-lg p-4">
                       <p className="text-gray-400 text-sm">Net Amount</p>
-                      <p className="text-green-400 text-lg font-semibold">${transaction.netAmount.toFixed(2)}</p>
+                      <p className="text-green-400 text-lg font-semibold">₹{(Number(transaction.netAmount) || 0).toFixed(2)}</p>
                     </div>
                     <div className="bg-gray-700 rounded-lg p-4">
                       <p className="text-gray-400 text-sm">Date</p>
@@ -237,7 +240,7 @@ const TransactionHistoryPage: React.FC = () => {
                         <div className="bg-gray-700 rounded-lg p-4 space-y-2">
                           <div className="flex justify-between">
                             <span className="text-gray-400">Name:</span>
-                            <span className="text-white">{transaction.adoptionRequest.pet.name}</span>
+                            <span className="text-white">{transaction.adoptionRequest?.pet?.name || 'Unknown Pet'}</span>
                           </div>
                         </div>
                       </div>
@@ -248,11 +251,11 @@ const TransactionHistoryPage: React.FC = () => {
                         <div className="bg-gray-700 rounded-lg p-4 space-y-2">
                           <div className="flex justify-between">
                             <span className="text-gray-400">Name:</span>
-                            <span className="text-white">{transaction.adoptionRequest.adopter.name}</span>
+                            <span className="text-white">{transaction.adoptionRequest?.adopter?.name || 'Unknown Adopter'}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-400">Email:</span>
-                            <span className="text-white">{transaction.adoptionRequest.adopter.email}</span>
+                            <span className="text-white">{transaction.adoptionRequest?.adopter?.email || 'Unknown Email'}</span>
                           </div>
                         </div>
                       </div>

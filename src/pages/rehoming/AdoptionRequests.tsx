@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Calendar, Check, X, Eye, Dog, Cat, Phone, Mail, AlertCircle } from "lucide-react";
+import { ArrowLeft, Heart, Calendar, Check, X, Eye, Dog, Cat, Phone, Mail, AlertCircle, DollarSign, CheckCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -94,6 +94,27 @@ const AdoptionRequests: React.FC = () => {
           <Badge className="bg-green-900 text-green-200 border-green-700">
             <Check className="w-3 h-3 mr-1" />
             Accepted
+          </Badge>
+        );
+      case "pet_transfer_pending":
+        return (
+          <Badge className="bg-blue-900 text-blue-200 border-blue-700">
+            <DollarSign className="w-3 h-3 mr-1" />
+            Payment Received
+          </Badge>
+        );
+      case "payment_verified":
+        return (
+          <Badge className="bg-purple-900 text-purple-200 border-purple-700">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Payment Verified
+          </Badge>
+        );
+      case "completed":
+        return (
+          <Badge className="bg-emerald-900 text-emerald-200 border-emerald-700">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Completed
           </Badge>
         );
       case "rejected":
@@ -382,15 +403,16 @@ const AdoptionRequests: React.FC = () => {
                   </div>
                 )}
                 
-                {/* Payment Actions for Accepted Requests */}
+                {/* Actions for Accepted Requests - Pet Owner View */}
                 {request.status === "accepted" && (
                   <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
                     <Button
-                    onClick={() => navigate(`/rehoming/payment/${request.id}`)}
+                    onClick={() => navigate("/rehoming/transactions")}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                     size="sm"
                     >
-                    💳 Process Payment
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Check Payment Status
                     </Button>
                     
                     <Button
@@ -400,6 +422,70 @@ const AdoptionRequests: React.FC = () => {
                     className="border-yellow-600 text-yellow-200 bg-yellow-900/20 hover:bg-yellow-800/30"
                     >
                     📋 View Transfer Status
+                    </Button>
+                  </div>
+                )}
+
+                {/* Actions for Payment Completed - Pet Owner Needs to Verify */}
+                {request.status === "pet_transfer_pending" && (
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    <div className="bg-green-900/30 border border-green-600 rounded-lg p-3 mb-2">
+                      <p className="text-green-200 text-sm font-medium">
+                        💰 Payment Received! Adopter paid ₹{request.pet?.price || 0}
+                      </p>
+                      <p className="text-green-200 text-xs mt-1">
+                        Please verify the payment and proceed with pet transfer arrangements.
+                      </p>
+                    </div>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transactions")}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    size="sm"
+                    >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Verify Payment
+                    </Button>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transfer-confirmation")}
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-600 text-blue-200 bg-blue-900/20 hover:bg-blue-800/30"
+                    >
+                    📋 Setup Transfer
+                    </Button>
+                  </div>
+                )}
+
+                {/* Actions for Payment Verified - Ready for Transfer */}
+                {request.status === "payment_verified" && (
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    <div className="bg-blue-900/30 border border-blue-600 rounded-lg p-3 mb-2">
+                      <p className="text-blue-200 text-sm font-medium">
+                        ✅ Payment Verified - Ready for Transfer
+                      </p>
+                      <p className="text-blue-200 text-xs mt-1">
+                        Coordinate with adopter to complete the pet transfer.
+                      </p>
+                    </div>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transfer-confirmation")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                    >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Confirm Transfer
+                    </Button>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transactions")}
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
+                    >
+                    💰 View Transaction
                     </Button>
                   </div>
                 )}

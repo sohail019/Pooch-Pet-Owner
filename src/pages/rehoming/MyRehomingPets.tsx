@@ -398,6 +398,16 @@ const MyRehomingPets: React.FC = () => {
                                     View
                                 </Button>
 
+                                <Button
+                                    onClick={() => navigate(`/rehoming/${pet.id}/requests`)}
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-purple-700 text-purple-200 bg-purple-900/30 hover:bg-purple-800/40 min-w-[36px]"
+                                    title="View adoption requests for this pet"
+                                >
+                                    <Heart className="w-3 h-3" />
+                                </Button>
+
                                 {!pet.isAdopted && (
                                     <>
                                         <Button

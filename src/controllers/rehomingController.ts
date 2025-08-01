@@ -33,7 +33,7 @@ export interface AdoptionRequest {
   petId: string;
   adopterId: string;
   message?: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "payment_pending" | "payment_completed" | "payment_verified" | "pet_transfer_pending" | "completed";
   createdAt: string;
   updatedAt: string;
   pet?: RehomingPet;
@@ -391,6 +391,28 @@ export const updateAdoptionRequestStatus = async (
 };
 
 /**
+ * Get my adoption requests as adopter (requests I sent)
+ * @returns Promise<AdoptionRequest[]>
+ */
+export const getMyAdoptionRequestsAsAdopter = async (): Promise<AdoptionRequest[]> => {
+  try {
+    console.log("🏠 Fetching my adoption requests as adopter...");
+    
+    // This endpoint should return requests where current user is the adopter
+    // For now, using the same endpoint but in a real app, this might be a different endpoint
+    // like /rehoming/my-adoption-requests or with a query parameter ?role=adopter
+    const response = await axiosInstance.get('/rehoming/adoption-requests?role=adopter');
+    console.log("✅ My adoption requests as adopter fetched successfully:", response.data);
+    
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to fetch my adoption requests as adopter:", error);
+    const errorMessage = handleApiError(error);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
  * Helper function to get adoption status display
  * @param status - Adoption request status
  * @returns Display configuration for badges
@@ -437,7 +459,7 @@ export const processAdoptionPayment = async (
   try {
     console.log(`💳 Processing payment for adoption request ${adoptionRequestId}:`, payload);
     
-    const response = await axiosInstance.post(`/payment/rehoming-transactions/process-payment/${adoptionRequestId}`, payload);
+    const response = await axiosInstance.post(`/payment/rehoming/process-payment/${adoptionRequestId}`, payload);
     console.log("✅ Payment processed successfully:", response.data);
     
     toast.success("Payment processed successfully! Funds are held in escrow.");
@@ -479,7 +501,7 @@ export const getTransactionById = async (transactionId: string): Promise<Rehomin
   try {
     console.log(`💳 Fetching transaction details for ID: ${transactionId}`);
     
-    const response = await axiosInstance.get(`/payment/rehoming-transactions/${transactionId}`);
+    const response = await axiosInstance.get(`/payment/rehoming/${transactionId}`);
     console.log("✅ Transaction details fetched:", response.data);
     
     return response.data.data;
