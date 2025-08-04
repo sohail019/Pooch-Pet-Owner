@@ -111,21 +111,31 @@ const MyAdoptionRequests: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-6xl mx-auto pt-20">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/rehoming")}
-              className="border-gray-600 text-gray-300 hover:bg-gray-700"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Rehoming
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-white">My Adoption Requests</h1>
-              <p className="text-gray-400">Track your adoption requests and manage payments</p>
-            </div>
+        <div className="flex items-center justify-between mb-10">
+          {/* Left: Back Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/rehoming")}
+            className="border border-gray-700 text-gray-300 hover:bg-gray-800 rounded-full shadow-md transition"
+            aria-label="Back to Rehoming"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+
+          {/* Center: Title & Subtitle */}
+          <div className="flex-1 flex flex-col items-center">
+            <h1 className="text-4xl font-extrabold text-white tracking-tight mb-1 drop-shadow-lg">
+              My Adoption Requests
+            </h1>
+            <p className="text-gray-400 text-base font-medium">
+              Track your adoption journey and manage payments
+            </p>
+          </div>
+
+          {/* Right: Decorative Icon */}
+          <div className="hidden md:flex items-center">
+            <Heart className="w-8 h-8 text-pink-400 drop-shadow" />
           </div>
         </div>
 

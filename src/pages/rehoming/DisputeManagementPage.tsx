@@ -102,11 +102,13 @@ const DisputeManagementPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-        <div className="max-w-6xl mx-auto pt-20">
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <div className="w-full max-w-md bg-gray-800/80 rounded-xl shadow-lg p-8 flex flex-col items-center">
+          {/* Shimmer skeleton for card */}
+          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 animate-pulse mb-6" />
+          <div className="w-40 h-6 rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 animate-pulse mb-2" />
+          <div className="w-56 h-4 rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 animate-pulse" />
+          <span className="text-gray-300 text-lg font-medium mt-8">Loading transactions...</span>
         </div>
       </div>
     );

@@ -551,8 +551,8 @@ const RehomingDetails: React.FC = () => {
 
                 <div>
                   <p className="text-gray-400 text-sm mb-2">Description</p>
-                  <p className="text-gray-200 leading-relaxed">
-                    {pet.description}
+                  <p className="text-gray-200 leading-relaxed break-words whitespace-pre-line text-sm sm:text-base">
+                  {pet.description}
                   </p>
                 </div>
 

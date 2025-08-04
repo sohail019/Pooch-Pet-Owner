@@ -95,4 +95,4 @@ export async function fetchPetById(id: string) {
   const response = await axiosInstance.get(`/pets/${id}`);
   return response.data;
 }
-
+ 

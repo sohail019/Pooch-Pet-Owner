@@ -68,40 +68,95 @@ const OrderDetails: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-        <div className="border-b border-gray-700 sticky top-0 z-10 bg-gray-900/50 backdrop-blur-sm">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={() => navigate("/my-orders")}
-                variant="ghost"
-                size="sm"
-                className="p-2 text-white hover:bg-gray-800"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold">Order Details</h1>
-                <p className="text-gray-400">Loading...</p>
-              </div>
-            </div>
+        {/* Header */}
+        <div className="border-b border-gray-700 sticky top-0 z-10 bg-gray-900/70 backdrop-blur-md shadow-md">
+          <div className="max-w-4xl mx-auto px-6 py-5 flex items-center gap-4">
+        <Button
+          onClick={() => navigate("/my-orders")}
+          variant="ghost"
+          size="icon"
+          className="rounded-full p-2 text-white hover:bg-gray-800 transition"
+          aria-label="Back to Orders"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-1">
+            Order Details
+          </h1>
+          <p className="text-gray-400">Loading order information...</p>
+        </div>
           </div>
         </div>
 
+        {/* Skeleton Loader */}
         <div className="max-w-4xl mx-auto p-4">
-          <div className="space-y-6">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="border-0 shadow-lg">
-                <CardContent className="p-6">
-                  <div className="animate-pulse space-y-4">
-                    <div className="w-32 h-6 bg-gray-200 rounded" />
-                    <div className="space-y-2">
-                      <div className="w-full h-4 bg-gray-200 rounded" />
-                      <div className="w-3/4 h-4 bg-gray-200 rounded" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="space-y-8">
+        {/* Order Status Skeleton */}
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-4 mb-6 animate-pulse">
+          <div className="bg-blue-200 rounded-full w-10 h-10" />
+          <div className="flex-1">
+            <div className="h-5 w-32 bg-gray-300 rounded mb-2" />
+            <div className="h-3 w-20 bg-gray-300 rounded" />
+          </div>
+            </div>
+            <div className="flex justify-between gap-4">
+          <div className="flex flex-col gap-2 w-1/2">
+            <div className="h-3 w-24 bg-gray-300 rounded" />
+            <div className="h-4 w-32 bg-gray-200 rounded" />
+          </div>
+          <div className="flex flex-col gap-2 items-end w-1/2">
+            <div className="h-3 w-20 bg-gray-300 rounded" />
+            <div className="h-6 w-24 bg-blue-200 rounded" />
+          </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Item Details Skeleton */}
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
+          <CardContent className="p-8 flex items-center gap-8 animate-pulse">
+            <div className="w-24 h-24 bg-gray-200 rounded-xl" />
+            <div className="flex-1 space-y-3">
+          <div className="h-5 w-40 bg-gray-300 rounded" />
+          <div className="flex gap-2">
+            <div className="h-4 w-16 bg-gray-200 rounded" />
+            <div className="h-4 w-12 bg-blue-200 rounded" />
+          </div>
+          <div className="h-4 w-24 bg-gray-200 rounded" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Payment Details Skeleton */}
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
+          <CardContent className="p-8 animate-pulse">
+            <div className="flex flex-wrap gap-8">
+          <div className="flex flex-col gap-2">
+            <div className="h-3 w-16 bg-gray-300 rounded" />
+            <div className="h-4 w-20 bg-green-200 rounded" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="h-3 w-16 bg-gray-300 rounded" />
+            <div className="h-4 w-28 bg-gray-200 rounded" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="h-3 w-16 bg-gray-300 rounded" />
+            <div className="h-4 w-16 bg-blue-200 rounded" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="h-3 w-16 bg-gray-300 rounded" />
+            <div className="h-4 w-20 bg-green-200 rounded" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="h-3 w-16 bg-gray-300 rounded" />
+            <div className="h-4 w-24 bg-gray-200 rounded" />
+          </div>
+            </div>
+          </CardContent>
+        </Card>
           </div>
         </div>
       </div>
@@ -166,118 +221,192 @@ const OrderDetails: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       {/* Header */}
-      <div className="border-b border-gray-700 sticky top-0 z-10 bg-gray-900/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+      <header className="sticky top-0 z-20 bg-gradient-to-r from-gray-900/90 via-gray-800/90 to-gray-900/90 backdrop-blur-md shadow-md border-b border-gray-800">
+        <div className="max-w-4xl mx-auto flex items-center justify-between px-6 py-5">
           <div className="flex items-center gap-4">
-            <Button
-              onClick={() => navigate("/my-orders")}
-              variant="ghost"
-              size="sm"
-              className="p-2 text-white hover:bg-gray-800"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Order Details</h1>
-              <p className="text-gray-400">Order #{order.id.slice(-8)}</p>
-            </div>
+        <Button
+          onClick={() => navigate("/my-orders")}
+          variant="ghost"
+          size="icon"
+          className="rounded-full p-2 text-white hover:bg-gray-800 transition"
+          aria-label="Back to Orders"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-1">
+            Order Details
+          </h1>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono bg-gray-800 text-gray-300 px-2 py-0.5 rounded">
+          #{order.id.slice(-8)}
+            </span>
+            <Badge className="ml-1 text-xs px-2 py-0.5 font-medium" variant="secondary">
+          {getOrderStatusDisplay(order.status).label}
+            </Badge>
           </div>
         </div>
-      </div>
+          </div>
+          <div className="hidden md:flex flex-col items-end">
+        <span className="text-xs text-gray-400">Placed on</span>
+        <span className="text-sm font-medium text-gray-200">
+          {formatDate(order.createdAt)}
+        </span>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Order Status */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5" />
-              Order Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <Badge className={`${statusDisplay.color} text-sm`}>
-                  {statusDisplay.label}
-                </Badge>
-                <p className="text-gray-600 mt-1">
-                  Placed on {formatDate(order.createdAt)}
-                </p>
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 rounded-full p-2">
+          <Package className="w-5 h-5 text-blue-600" />
               </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-green-600">
-                  ₹{parseFloat(isProductOrder(order) ? order.totalPrice : order.userPackageItem.price).toFixed(2)}
-                </p>
-                <p className="text-sm text-gray-600">Total Amount</p>
+              <div>
+          <CardTitle className="text-lg font-semibold text-white mb-0">
+            Order Status
+          </CardTitle>
+          <span className={`inline-flex items-center gap-2 mt-1`}>
+            <Badge className={`${statusDisplay.color} text-xs px-2 py-0.5 font-medium`}>
+              {statusDisplay.label}
+            </Badge>
+            <span className="text-xs text-gray-400 font-mono">
+              Placed {formatDate(order.createdAt)}
+            </span>
+          </span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex flex-col gap-1">
+          <span className="text-gray-500 text-xs uppercase tracking-wide">Order ID</span>
+          <span className="font-mono text-sm text-gray-800 bg-gray-200 rounded px-2 py-0.5 w-fit">
+            #{order.id.slice(-8)}
+          </span>
+              </div>
+              <div className="flex flex-col items-end">
+          <span className="text-gray-500 text-xs uppercase tracking-wide">Total Amount</span>
+          <span className="text-2xl font-bold text-blue-600">
+            ₹{parseFloat(isProductOrder(order) ? order.totalPrice : order.userPackageItem.price).toFixed(2)}
+          </span>
+          <span className="text-xs text-gray-400">incl. taxes</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Item Details */}
-        <Card className="border-0 shadow-lg">
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {isProductOrder(order) ? <Package className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+            <CardTitle className="flex items-center gap-3 text-xl font-bold text-white">
+              <span className="bg-blue-100 rounded-full p-2">
+          {isProductOrder(order) ? (
+            <Package className="w-5 h-5 text-blue-600" />
+          ) : (
+            <FileText className="w-5 h-5 text-purple-600" />
+          )}
+              </span>
               {isProductOrder(order) ? "Product Details" : "Package Details"}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {isProductOrder(order) ? (
-              <div className="flex items-start gap-4">
-                <div className="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src={order.userProductItem.images?.[0] || "https://via.placeholder.com/80x80/e5e7eb/6b7280?text=No+Image"}
-                    alt={order.userProductItem.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-2">{order.userProductItem.name}</h3>
-                  <div className="space-y-1 text-sm text-gray-600">
-                    <p>SKU: {order.userProductItem.sku}</p>
-                    <p>Quantity: {order.quantity}</p>
-                    <p>Unit Price: ₹{parseFloat(order.unitPrice).toFixed(2)}</p>
-                  </div>
-                </div>
+              <div className="flex flex-col md:flex-row items-center gap-6">
+          <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 border-blue-200 shadow-md bg-gray-100">
+            <img
+              src={order.userProductItem.images?.[0] || "https://via.placeholder.com/96x96/e5e7eb/6b7280?text=No+Image"}
+              alt={order.userProductItem.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg text-white mb-1">{order.userProductItem.name}</h3>
+            <div className="flex flex-wrap gap-3 mb-2">
+              <span className="bg-gray-800 text-gray-300 text-xs px-2 py-0.5 rounded font-mono">
+                SKU: {order.userProductItem.sku}
+              </span>
+              <span className="bg-blue-800/80 text-blue-100 text-xs px-2 py-0.5 rounded font-mono">
+                Qty: {order.quantity}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400 text-sm">Unit Price:</span>
+              <span className="text-blue-400 font-bold text-lg">
+                ₹{parseFloat(order.unitPrice).toFixed(2)}
+              </span>
+            </div>
+          </div>
               </div>
             ) : (
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">{order.userPackageItem.name}</h3>
-                <p className="text-gray-600 mb-3">{order.userPackageItem.description}</p>
-                <div className="space-y-1 text-sm text-gray-600">
-                  <p>Duration: {order.userPackageItem.duration} days</p>
-                  <p>Price: ₹{parseFloat(order.userPackageItem.price).toFixed(2)}</p>
-                  <p>Active Period: {formatDate(order.startDate)} - {formatDate(order.endDate)}</p>
-                </div>
+              <div className="flex flex-col md:flex-row items-center gap-6">
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg text-white mb-1">{order.userPackageItem.name}</h3>
+            <p className="text-gray-400 mb-3">{order.userPackageItem.description}</p>
+            <div className="flex flex-wrap gap-3 mb-2">
+              <span className="bg-purple-800/80 text-purple-100 text-xs px-2 py-0.5 rounded font-mono">
+                Duration: {order.userPackageItem.duration} days
+              </span>
+              <span className="bg-gray-800 text-gray-300 text-xs px-2 py-0.5 rounded font-mono">
+                Price: ₹{parseFloat(order.userPackageItem.price).toFixed(2)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-400 text-sm">Active:</span>
+              <span className="text-green-400 font-mono text-sm">
+                {formatDate(order.startDate)} - {formatDate(order.endDate)}
+              </span>
+            </div>
+          </div>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* Payment Details */}
-        <Card className="border-0 shadow-lg">
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-3 text-xl font-bold text-white">
+              <span className="bg-green-100 rounded-full p-2">
+          <CreditCard className="w-5 h-5 text-green-600" />
+              </span>
               Payment Details
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge className={paymentDisplay.color}>
-                    {paymentDisplay.label}
-                  </Badge>
-                </div>
-                <div className="space-y-1 text-sm text-gray-600">
-                  <p>Payment ID: <span className="font-mono">{payment.id}</span></p>
-                  <p>Method: {payment.method}</p>
-                  <p>Amount: ₹{parseFloat(payment.amount).toFixed(2)}</p>
-                  <p>Date: {formatDate(payment.createdAt)}</p>
-                </div>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div className="flex flex-col gap-2">
+          <span className="text-gray-400 text-xs uppercase tracking-wide">Status</span>
+          <Badge className={`${paymentDisplay.color} text-xs px-3 py-1 font-semibold rounded-full`}>
+            {paymentDisplay.label}
+          </Badge>
+              </div>
+              <div className="flex flex-col gap-1">
+          <span className="text-gray-400 text-xs uppercase tracking-wide">Payment ID</span>
+          <span className="font-mono text-sm text-gray-200 bg-gray-800 rounded px-2 py-0.5 w-fit">
+            {payment.id}
+          </span>
+              </div>
+              <div className="flex flex-col gap-1">
+          <span className="text-gray-400 text-xs uppercase tracking-wide">Method</span>
+          <span className="text-sm font-medium text-blue-300 bg-blue-900/60 rounded px-2 py-0.5 w-fit">
+            {payment.method}
+          </span>
+              </div>
+              <div className="flex flex-col gap-1">
+          <span className="text-gray-400 text-xs uppercase tracking-wide">Amount</span>
+          <span className="text-lg font-bold text-green-400">
+            ₹{parseFloat(payment.amount).toFixed(2)}
+          </span>
+              </div>
+              <div className="flex flex-col gap-1">
+          <span className="text-gray-400 text-xs uppercase tracking-wide">Date</span>
+          <span className="text-sm text-gray-300 font-mono">
+            {formatDate(payment.createdAt)}
+          </span>
               </div>
             </div>
           </CardContent>
@@ -333,23 +462,24 @@ const OrderDetails: React.FC = () => {
         )}
 
         {/* Actions */}
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex gap-3 justify-center">
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
+          <CardContent className="p-8 flex flex-col items-center">
+            <div className="flex flex-col md:flex-row gap-4 w-full justify-center items-center">
               <Button 
-                onClick={() => navigate("/my-orders")} 
-                variant="outline"
+          onClick={() => navigate("/my-orders")} 
+          variant="outline"
+          className="flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Orders
+          <ArrowLeft className="w-4 h-4" />
+          <span className="font-semibold">Back to Orders</span>
               </Button>
               <Button
-                onClick={() => navigate(
-                  isProductOrder(order) ? `/inventory/${order.productId}` : `/packages/${order.packageId}`
-                )}
-                className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => navigate(
+            isProductOrder(order) ? `/inventory/${order.productId}` : `/packages/${order.packageId}`
+          )}
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold shadow-lg px-6 py-2 rounded-lg transition"
               >
-                View {isProductOrder(order) ? "Product" : "Package"}
+          <span>View {isProductOrder(order) ? "Product" : "Package"}</span>
               </Button>
             </div>
           </CardContent>
