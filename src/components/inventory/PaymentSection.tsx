@@ -57,7 +57,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
       setPaymentId(paymentResponse.id);
       setPaymentStep("initiated");
-      toast.success("Payment initiated successfully! Click 'Complete Payment' to finish.");
+      // toast.success("Payment initiated successfully! Click 'Complete Payment' to finish.");
 
     } catch (err) {
       console.error("❌ Payment initiation failed:", err);

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { 
   getMyAdoptionRequests,
   updateAdoptionRequestStatus,
+  confirmPetOwnerTransfer,
   AdoptionRequest 
 } from "@/controllers/rehomingController";
 import { handleApiError } from "@/types/errors";
@@ -21,6 +22,7 @@ const AdoptionRequests: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [confirmingTransfer, setConfirmingTransfer] = useState<string | null>(null);
   // Note: Dialog functionality commented out for now - can be enabled later
   // const [selectedRequest, setSelectedRequest] = useState<AdoptionRequest | null>(null);
   // const [showResponseDialog, setShowResponseDialog] = useState(false);
@@ -66,6 +68,26 @@ const AdoptionRequests: React.FC = () => {
       // Error handled by controller
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  // Handle pet owner transfer confirmation
+  const handlePetOwnerConfirmation = async (requestId: string) => {
+    try {
+      setConfirmingTransfer(requestId);
+      
+      console.log("🤝 Confirming pet transfer by owner for request:", requestId);
+      
+      await confirmPetOwnerTransfer(requestId, "Pet transferred successfully to the adopter!");
+      
+      // Refresh the requests to show updated status
+      await fetchAdoptionRequests();
+      
+    } catch (err: unknown) {
+      console.error("❌ Failed to confirm pet transfer:", err);
+      // Error handled by controller (toast)
+    } finally {
+      setConfirmingTransfer(null);
     }
   };
 
@@ -427,7 +449,7 @@ const AdoptionRequests: React.FC = () => {
                 )}
 
                 {/* Actions for Payment Completed - Pet Owner Needs to Verify */}
-                {request.status === "pet_transfer_pending" && (
+                {request.status === "pet_transfer_pending" && !request.petOwnerConfirmation && (
                   <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
                     <div className="bg-green-900/30 border border-green-600 rounded-lg p-3 mb-2">
                       <p className="text-green-200 text-sm font-medium">
@@ -439,12 +461,31 @@ const AdoptionRequests: React.FC = () => {
                     </div>
                     
                     <Button
-                    onClick={() => navigate("/rehoming/transactions")}
+                    onClick={() => handlePetOwnerConfirmation(request.id)}
                     className="bg-green-600 hover:bg-green-700 text-white"
                     size="sm"
+                    disabled={confirmingTransfer === request.id}
                     >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Verify Payment
+                    {confirmingTransfer === request.id ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Confirming...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Pet Delivered
+                      </>
+                    )}
+                    </Button>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transactions")}
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
+                    >
+                    💰 View Transaction
                     </Button>
                     
                     <Button
@@ -454,6 +495,38 @@ const AdoptionRequests: React.FC = () => {
                     className="border-blue-600 text-blue-200 bg-blue-900/20 hover:bg-blue-800/30"
                     >
                     📋 Setup Transfer
+                    </Button>
+                  </div>
+                )}
+
+                {/* Actions for when Pet Owner has confirmed but waiting for Adopter */}
+                {request.status === "pet_transfer_pending" && request.petOwnerConfirmation && !request.adopterConfirmation && (
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    <div className="bg-blue-900/30 border border-blue-600 rounded-lg p-3 mb-2">
+                      <p className="text-blue-200 text-sm font-medium">
+                        ✅ You confirmed the transfer! 
+                      </p>
+                      <p className="text-blue-200 text-xs mt-1">
+                        Waiting for the adopter to confirm they received the pet. The escrow will be released once both parties confirm.
+                      </p>
+                    </div>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transactions")}
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
+                    >
+                    💰 View Transaction
+                    </Button>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transfer-confirmation")}
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-600 text-blue-200 bg-blue-900/20 hover:bg-blue-800/30"
+                    >
+                    📋 View Transfer Status
                     </Button>
                   </div>
                 )}
@@ -486,6 +559,29 @@ const AdoptionRequests: React.FC = () => {
                     className="border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
                     >
                     💰 View Transaction
+                    </Button>
+                  </div>
+                )}
+
+                {/* Actions for Completed Transfer */}
+                {request.status === "completed" && (
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    <div className="bg-emerald-900/30 border border-emerald-600 rounded-lg p-3 mb-2">
+                      <p className="text-emerald-200 text-sm font-medium">
+                        🎉 Transfer Completed Successfully!
+                      </p>
+                      <p className="text-emerald-200 text-xs mt-1">
+                        Both parties have confirmed the pet transfer. The payment has been released from escrow.
+                      </p>
+                    </div>
+                    
+                    <Button
+                    onClick={() => navigate("/rehoming/transactions")}
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-200 bg-gray-800 hover:bg-gray-700"
+                    >
+                    💰 View Final Transaction
                     </Button>
                   </div>
                 )}

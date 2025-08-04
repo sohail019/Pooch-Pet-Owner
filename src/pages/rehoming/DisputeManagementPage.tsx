@@ -176,11 +176,11 @@ const DisputeManagementPage: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <span className="text-gray-400 text-sm">Amount:</span>
-                        <p className="text-white font-medium">${transaction.amount.toFixed(2)}</p>
+                        <p className="text-white font-medium">${Number(transaction.amount || 0).toFixed(2)}</p>
                       </div>
                       <div>
                         <span className="text-gray-400 text-sm">Adopter:</span>
-                        <p className="text-white font-medium">{transaction.adoptionRequest.adopter.name}</p>
+                        <p className="text-white font-medium">{transaction?.fromUser.name}</p>
                       </div>
                       <div>
                         <span className="text-gray-400 text-sm">Status:</span>
@@ -247,15 +247,15 @@ const DisputeManagementPage: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div>
                         <span className="text-gray-400 text-sm">Amount:</span>
-                        <p className="text-white font-medium">${transaction.amount.toFixed(2)}</p>
+                        <p className="text-white font-medium">${Number(transaction.amount || 0).toFixed(2)}</p>
                       </div>
                       <div>
                         <span className="text-gray-400 text-sm">Platform Fee:</span>
-                        <p className="text-white font-medium">${transaction.platformFee.toFixed(2)}</p>
+                        <p className="text-white font-medium">${Number(transaction.platformFee || 0).toFixed(2)}</p>
                       </div>
                       <div>
                         <span className="text-gray-400 text-sm">Net Amount:</span>
-                        <p className="text-green-400 font-medium">${transaction.netAmount.toFixed(2)}</p>
+                        <p className="text-green-400 font-medium">${Number(transaction.netAmount || 0).toFixed(2)}</p>
                       </div>
                       <div>
                         <span className="text-gray-400 text-sm">Escrow Status:</span>
@@ -271,8 +271,8 @@ const DisputeManagementPage: React.FC = () => {
                       <div className="bg-gray-700 rounded-lg p-4">
                         <div className="flex justify-between items-center">
                           <div>
-                            <p className="text-white font-medium">{transaction.adoptionRequest.adopter.name}</p>
-                            <p className="text-gray-400 text-sm">{transaction.adoptionRequest.adopter.email}</p>
+                            <p className="text-white font-medium">{transaction?.fromUser.name}</p>
+                            <p className="text-gray-400 text-sm">{transaction?.fromUser.email}</p>
                           </div>
                         </div>
                       </div>

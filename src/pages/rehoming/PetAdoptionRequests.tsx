@@ -12,7 +12,8 @@ import {
   updateAdoptionRequestStatus,
   AdoptionRequest,
   RehomingPet,
-  getAdoptionStatusDisplay
+  getAdoptionStatusDisplay,
+  confirmPetOwnerTransfer
 } from "@/controllers/rehomingController";
 import { handleApiError } from "@/types/errors";
 import { toast } from "react-toastify";
@@ -366,17 +367,17 @@ const PetAdoptionRequests: React.FC = () => {
                       )}
 
                       {/* Owner Actions for Accepted Requests */}
-                      {request.status === "accepted" && pet.adoptionType === "paid" && (
+                      {request.status === "pet_transfer_pending" && pet.adoptionType === "paid" && !request.petOwnerConfirmation && (
                         <div className="flex flex-col space-y-3 lg:min-w-[200px]">
-                          <Button
-                            onClick={() => navigate("/rehoming/transactions")}
+                            <Button
+                            onClick={() => confirmPetOwnerTransfer(request.id)}
                             className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            � Check Payment Status
-                          </Button>
+                            >
+                             Verify pet transfer
+                            </Button>
                           
                           <Button
-                            onClick={() => navigate("/rehoming/transfer-confirmation")}
+                            onClick={() => navigate("/rehoming/transfer-confirmation", { state: { adoptionRequestId: request.id } })}
                             variant="outline"
                             className="border-yellow-600 text-yellow-200 bg-yellow-900/20 hover:bg-yellow-800/30"
                           >

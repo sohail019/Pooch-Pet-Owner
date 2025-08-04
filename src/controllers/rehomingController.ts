@@ -33,7 +33,7 @@ export interface AdoptionRequest {
   petId: string;
   adopterId: string;
   message?: string;
-  status: "pending" | "accepted" | "rejected" | "payment_pending" | "payment_completed" | "payment_verified" | "pet_transfer_pending" | "completed";
+  status: AdoptionStatus;
   createdAt: string;
   updatedAt: string;
   pet?: RehomingPet;
@@ -43,7 +43,22 @@ export interface AdoptionRequest {
     email: string;
     phone: string;
   };
+  petOwnerConfirmation?: boolean;
+  adopterConfirmation?: boolean;
+  petOwnerConfirmationDate?: string | null;
+  adopterConfirmationDate?: string | null;
+  transferConfirmationDate?: string | null;
 }
+
+export type AdoptionStatus = 
+  | "pending" 
+  | "accepted" 
+  | "rejected" 
+  | "payment_pending" 
+  | "payment_completed" 
+  | "payment_verified" 
+  | "pet_transfer_pending" 
+  | "completed";
 
 export interface RehomingFilters {
   species?: "dog" | "cat";
@@ -114,11 +129,11 @@ export interface RehomingTransaction {
       id: string;
       name: string;
     };
-    adopter: {
-      id: string;
-      name: string;
-      email: string;
-    };
+  };
+  fromUser: {
+    id: string;
+    name: string;
+    email: string;
   };
 }
 
@@ -443,6 +458,24 @@ export const getAdoptionStatusDisplay = (status: AdoptionRequest["status"]) => {
 };
 
 /**
+ * Get a single adoption request by its ID
+ * @param requestId - The ID of the adoption request
+ * @returns Promise<AdoptionRequest>
+ */
+export const getAdoptionRequestById = async (requestId: string): Promise<AdoptionRequest> => {
+  try {
+    console.log("🔍 Fetching adoption request by ID:", requestId);
+    const response = await axiosInstance.get(`/rehoming/requests/${requestId}`);
+    console.log("✅ Fetched adoption request:", response.data.data);
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to fetch adoption request:", error);
+    const errorMessage = handleApiError(error);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
  * PAYMENT PROCESSING FUNCTIONS
  */
 
@@ -692,5 +725,51 @@ export const getDisputeStatusDisplay = (status?: RehomingTransaction["disputeSta
         label: "No Dispute",
         color: "bg-green-900 text-green-300"
       };
+  }
+};
+
+/**
+ * Confirm pet transfer from adopter's side
+ * @param adoptionRequestId - The ID of the adoption request
+ * @param confirmationMessage - Optional message from the adopter
+ * @returns Promise<AdoptionRequest>
+ */
+export const confirmAdopterTransfer = async (
+  adoptionRequestId: string,
+  confirmationMessage?: string
+): Promise<AdoptionRequest> => {
+  try {
+    console.log("🤝 Confirming pet transfer (adopter) for request:", adoptionRequestId);
+    const payload = { adoptionRequestId, confirmationMessage };
+    const response = await axiosInstance.post('/rehoming/transfer/confirm-adopter', payload);
+    toast.success(response.data.message || "Pet transfer confirmed successfully!");
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to confirm adopter transfer:", error);
+    const errorMessage = handleApiError(error);
+    throw new Error(errorMessage);
+  }
+};
+
+/**
+ * Confirm pet transfer from pet owner's side
+ * @param adoptionRequestId - The ID of the adoption request
+ * @param confirmationMessage - Optional message from the pet owner
+ * @returns Promise<AdoptionRequest>
+ */
+export const confirmPetOwnerTransfer = async (
+  adoptionRequestId: string,
+  confirmationMessage?: string
+): Promise<AdoptionRequest> => {
+  try {
+    console.log("🤝 Confirming pet transfer (pet owner) for request:", adoptionRequestId);
+    const payload = { adoptionRequestId, confirmationMessage };
+    const response = await axiosInstance.post('/rehoming/transfer/confirm-pet-owner', payload);
+    toast.success(response.data.message || "Pet transfer confirmed successfully!");
+    return response.data.data;
+  } catch (error: unknown) {
+    console.error("❌ Failed to confirm pet owner transfer:", error);
+    const errorMessage = handleApiError(error);
+    throw new Error(errorMessage);
   }
 };

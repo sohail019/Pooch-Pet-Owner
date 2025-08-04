@@ -73,31 +73,34 @@ const TransactionHistoryPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
       <div className="max-w-6xl mx-auto pt-20">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
+          {/* Row for back arrow and Manage Disputes button */}
+          <div className="flex flex-row items-center justify-between gap-3">
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              size="icon"
               onClick={() => navigate(-1)}
-              className="border-gray-600 text-gray-300 hover:bg-gray-700 mb-2 sm:mb-0"
+              className="border border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-300 shadow-lg transition-all mr-2"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Transaction History</h1>
-              <p className="text-gray-400">View all your adoption payments and transactions</p>
-            </div>
-          </div>
-          <div className="flex flex-row space-x-3">
             <Button
               onClick={() => navigate("/rehoming/dispute-management")}
               variant="outline"
-              className="border-red-600 text-red-400 hover:bg-red-900/20"
+              className="border-red-600 text-red-400 hover:bg-red-900/30 bg-gray-800 hover:text-white font-semibold shadow-md transition-all"
             >
               <AlertTriangle className="w-4 h-4 mr-2" />
               Manage Disputes
             </Button>
+          </div>
+          {/* Title and subtitle */}
+          <div className="mt-2 md:mt-0">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-1 drop-shadow-lg">
+              Transaction History
+            </h1>
+            <p className="text-gray-400 text-base font-medium">
+              All your adoption payments and transactions in one place.
+            </p>
           </div>
         </div>
 
@@ -251,11 +254,11 @@ const TransactionHistoryPage: React.FC = () => {
                         <div className="bg-gray-700 rounded-lg p-4 space-y-2">
                           <div className="flex justify-between">
                             <span className="text-gray-400">Name:</span>
-                            <span className="text-white">{transaction.adoptionRequest?.adopter?.name || 'Unknown Adopter'}</span>
+                            <span className="text-white">{transaction?.fromUser?.name || 'Unknown Adopter'}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-400">Email:</span>
-                            <span className="text-white">{transaction.adoptionRequest?.adopter?.email || 'Unknown Email'}</span>
+                            <span className="text-white">{transaction?.fromUser?.email || 'Unknown Email'}</span>
                           </div>
                         </div>
                       </div>
